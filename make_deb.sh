@@ -41,7 +41,7 @@ tar -xf "$ROOTFS_FILE" -C "$ROOTFS_DIR"
 
 echo "Chrooting into rootfs in order to install more packages..."
 "$ROOTFS_DIR"/chroot_this.sh sh -c "apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get upgrade && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y $PACKAGES"
 FW_VERSION=$(cat "$ROOTFS_DIR"/etc/wb-fw-version)
 
