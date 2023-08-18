@@ -21,6 +21,7 @@ wb6*|wb7*)
     exit 1
     ;;
 esac
+USRLIBDIR="/usr$LIBDIR"
 
 [[ $EUID == 0 ]] || {
 	exec sudo -E "$0" "$@"
@@ -137,14 +138,17 @@ FROM_ROOTFS=(
 	/usr/bin/pv
     /sbin/mkfs.ext4
     /sbin/mkfs.vfat
+    /usr/lib/locale/locale-archive
+    "$USRLIBDIR/gconv/gconv-modules.cache"
+    "$USRLIBDIR/gconv/IBM850.so"
 	/usr/bin/wb-run-update
     /usr/sbin/dropbear
     /usr/bin/dropbearkey
     /usr/bin/xxd
 
     "$LIBDIR/libnss_files.so.2"
-    "$LIBDIR/libnss_files-2.24.so"
-    "$LIBDIR/ld-2.24.so"
+    "$LIBDIR/libnss_files-2.31.so"
+    "$LIBDIR/ld-2.31.so"
     "$LIBDIR/ld-linux.so.3"
 
     /etc/shadow

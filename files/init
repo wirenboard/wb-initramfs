@@ -67,7 +67,7 @@ for compat in $DT_COMPAT_LIST; do
 			echo "Board is WB6, loading ci_hdrc_imx module"
 			BOARD_FAMILY="wb6"
 			#load board-specific modules here
-			modprobe ci_hdrc_imx
+			modprobe -q ci_hdrc_imx
 			sleep 1
 			break
 			;;
@@ -111,8 +111,8 @@ check_fit_end_signature() {
 
 search_for_usb_drive() {
 	echo "Load modules for USB to work"
-	modprobe usb-storage
-	modprobe sd_mod
+	modprobe -q usb-storage
+	modprobe -q sd_mod
 
 	local USB_SETTLE_TIME=10
 	local COUNT=0
