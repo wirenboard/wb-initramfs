@@ -59,12 +59,12 @@ pipeline {
                     def imageUrls = params.FIT_URLS.split(' ')
 
                     targets.eachWithIndex { target, i ->
-                        if (i >= imageUrls.size()) {
-                            error "Not enough FIT_URLS"
+                        def currentUrl = ''
+                        if (i < imageUrls.size()) {
+                            currentUrl = imageUrls[i]
                         }
 
                         def currentTarget = target
-                        def currentUrl = imageUrls[i]
 
                         def versionSuffix = env.VERSION_SUFFIX?:''
 
