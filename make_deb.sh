@@ -3,9 +3,9 @@
 set -e
 
 PLATFORM=$1
-PACKAGES="dropbear mmc-utils rsync dosfstools kbd"
+PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
 
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest_stretch.fit"}
+IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest.fit"}
 
 if [ -z "$PLATFORM" ]; then
     echo "Usage: $0 6x/7x"
@@ -40,7 +40,8 @@ mkdir "$ROOTFS_DIR"
 tar -xf "$ROOTFS_FILE" -C "$ROOTFS_DIR"
 
 echo "Chrooting into rootfs in order to install more packages..."
-"$ROOTFS_DIR"/chroot_this.sh sh -c "apt-get update && \
+"$ROOTFS_DIR"/chroot_this.sh sh -c " \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y $PACKAGES"
 FW_VERSION=$(cat "$ROOTFS_DIR"/etc/wb-fw-version)
@@ -62,7 +63,7 @@ cp "$INITRAMFS_FILE" "$BOOTLET_DIR/initramfs.cpio.gz"
 
 # FIXME: autodetect debian version here
 DCH_VERSION="$(head -n1 debian/changelog | sed -r 's/.*\((.*)\).*/\1/')"
-PKG_VERSION="${DCH_VERSION}-deb9-${FW_VERSION}${VERSION_SUFFIX}"
+PKG_VERSION="${DCH_VERSION}-deb11-${FW_VERSION}${VERSION_SUFFIX}"
 echo "$PKG_VERSION" > "$BOOTLET_DIR/version"
 
 PKG_NAME="wb-initramfs-wb$PLATFORM"
