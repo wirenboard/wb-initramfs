@@ -1,9 +1,6 @@
-def imageUrl7x = "https://fw-releases.wirenboard.com/fit_image/stable/7x/202308081740_wb-2207_stretch_wb7x.fit"
-def imageUrl6x = "https://fw-releases.wirenboard.com/fit_image/stable/6x/202308081741_wb-2207_stretch_wb6x.fit"
-
 Map config = [
     defaultTargets: '6x 7x',
-    defaultImageUrls: "$imageUrl6x $imageUrl7x",
+    defaultImageUrls: "",
     defaultWbdevImage: '',
     defaultEnableTelegramAlert: false,
     customReleaseBranchPattern: '^\b$'  // never-matching pattern
