@@ -1,3 +1,9 @@
+wb-initenv (1.2.0) stable; urgency=medium
+
+  * switch to Debian bullseye
+
+ -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Fri, 18 Aug 2023 18:12:39 +0600
+
 wb-initenv (1.1.0) stable; urgency=medium
 
   * make USB debug network update work without USB disconnection
