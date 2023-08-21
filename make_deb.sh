@@ -5,7 +5,7 @@ set -e
 PLATFORM=$1
 PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
 
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest.fit"}
+IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/testing/${PLATFORM}/latest.fit"}
 
 if [ -z "$PLATFORM" ]; then
     echo "Usage: $0 6x/7x"
