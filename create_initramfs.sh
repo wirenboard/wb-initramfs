@@ -163,6 +163,10 @@ FROM_ROOTFS=(
     /sbin/sfdisk
     /usr/lib/wb-utils/prepare/vars.sh
     /usr/lib/wb-utils/prepare/partitions.sh
+    /usr/lib/wb-utils/device-factory-fdt.sh
+    /usr/bin/dtc
+    /usr/bin/fdtoverlay
+    /usr/bin/fdtget
     /usr/bin/rsync
     /usr/bin/mmc
     /bin/dd
