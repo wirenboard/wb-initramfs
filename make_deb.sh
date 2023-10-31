@@ -39,6 +39,9 @@ ROOTFS_DIR="$TMP_DIR/rootfs"
 mkdir "$ROOTFS_DIR"
 tar -xf "$ROOTFS_FILE" -C "$ROOTFS_DIR"
 
+echo "Fixing /etc/resolv.conf in rootfs"
+cp /etc/resolv.conf "$ROOTFS_DIR"/etc/resolv.conf
+
 echo "Chrooting into rootfs in order to install more packages..."
 "$ROOTFS_DIR"/chroot_this.sh sh -c " \
     apt-get update && \
