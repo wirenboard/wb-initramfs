@@ -1,3 +1,9 @@
+wb-initenv (1.2.2) stable; urgency=medium
+
+  * reset USB on WB7 to make some strange USB drives work
+
+ -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Wed, 01 Nov 2023 00:41:16 +0600
+
 wb-initenv (1.2.1) stable; urgency=medium
 
   * add utils for FIT compatibility check via factory FDT

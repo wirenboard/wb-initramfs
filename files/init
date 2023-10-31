@@ -60,6 +60,32 @@ echo "Boot mode: $BOOTMODE"
 BOARD_FAMILY="wb6"
 DT_COMPAT_LIST=`tr < /proc/device-tree/compatible  '\000' '\n'`
 
+wb7_reset_usb() {
+	echo "Resetting USB to fix some USB drives detection"
+	OHCI_PATH="/sys/bus/platform/drivers/ohci-platform"
+	EHCI_PATH="/sys/bus/platform/drivers/ehci-platform"
+
+	OHCI_DEVS=$(find "$OHCI_PATH" -name "*.usb" -exec basename {} \;)
+	EHCI_DEVS=$(find "$EHCI_PATH" -name "*.usb" -exec basename {} \;)
+
+	for dev in $OHCI_DEVS; do
+		echo "$dev" > "$OHCI_PATH/unbind"
+	done
+
+	for dev in $EHCI_DEVS; do
+		echo "$dev" > "$EHCI_PATH/unbind"
+	done
+
+	sleep 1
+
+	for dev in $OHCI_DEVS; do
+		echo "$dev" > "$OHCI_PATH/bind"
+	done
+
+	for dev in $EHCI_DEVS; do
+		echo "$dev" > "$EHCI_PATH/bind"
+	done
+}
 
 for compat in $DT_COMPAT_LIST; do
 	case "$compat" in
@@ -74,6 +100,7 @@ for compat in $DT_COMPAT_LIST; do
 		"wirenboard,wirenboard-700" )
 			echo "Board is WB7"
 			BOARD_FAMILY="wb7"
+			wb7_reset_usb
 			break
 			;;
 	esac
