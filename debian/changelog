@@ -1,3 +1,9 @@
+wb-initenv (1.2.2) stable; urgency=medium
+
+  * Add tools for rootfs repartition
+
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Wed, 08 Nov 2023 17:51:27 +0300
+
 wb-initenv (1.2.1) stable; urgency=medium
 
   * add utils for FIT compatibility check via factory FDT

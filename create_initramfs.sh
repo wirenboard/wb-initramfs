@@ -172,6 +172,11 @@ FROM_ROOTFS=(
     /bin/dd
     /sbin/dumpe2fs
     /sbin/resize2fs
+
+    /sbin/tune2fs
+    /sbin/e2undo
+    /sbin/e2fsck
+    /sbin/e4defrag
 )
 
 for f in "${FROM_ROOTFS[@]}"; do
