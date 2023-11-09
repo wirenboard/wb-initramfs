@@ -1,4 +1,4 @@
-wb-initenv (1.2.2) stable; urgency=medium
+wb-initenv (1.2.3) stable; urgency=medium
 
   * Add tools for rootfs repartition
 
