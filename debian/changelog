@@ -1,3 +1,10 @@
+wb-initenv (1.2.2) stable; urgency=medium
+
+  * update README in ramdisk, no functional changes
+    Co-authored-by: Alexander Degtyarev
+
+ -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Tue, 28 Nov 2023 15:45:56 +0600
+
 wb-initenv (1.2.1) stable; urgency=medium
 
   * add utils for FIT compatibility check via factory FDT
