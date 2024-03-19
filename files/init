@@ -76,6 +76,12 @@ for compat in $DT_COMPAT_LIST; do
 			BOARD_FAMILY="wb7"
 			break
 			;;
+		"wirenboard,wirenboard-8xx" )
+			echo "Board is WB8"
+			BOARD_FAMILY="wb8"
+			break
+			;;
+
 	esac
 done
 
