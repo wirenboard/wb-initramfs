@@ -1,3 +1,9 @@
+wb-initenv (1.2.3) stable; urgency=medium
+
+  * add WBEC flashing requirements
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Thu, 28 Mar 2024 19:31:29 +0300
+
 wb-initenv (1.2.2) stable; urgency=medium
 
   * update README in ramdisk, no functional changes

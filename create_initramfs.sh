@@ -125,6 +125,13 @@ wb7*)
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
     install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-1.1/ateccx08.so
+    # WBEC flashing requirements: stm32flash; gpiod; i2c-tools
+    install_from_rootfs /usr/lib/arm-linux-gnueabihf/libgpiod.so.2
+    install_from_rootfs /usr/bin/gpiofind
+    install_from_rootfs /usr/bin/gpioset
+    install_from_rootfs /usr/lib/arm-linux-gnueabihf/libi2c.so.0
+    install_from_rootfs /usr/sbin/i2cdetect
+    install_from_rootfs /usr/bin/stm32flash
     ;;
 esac
 
