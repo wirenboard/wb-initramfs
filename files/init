@@ -421,23 +421,15 @@ case "$BOOTMODE" in
 	usbgadget|*)
 		FLAG=/flag
 
-		# create usb_mass_storage first
-		dd if=/dev/zero of=$FLAG bs=1K count=1
-
 		wait_for_emmc
 
-		echo "Activate Mass Storage device"
-		led red trigger mmc0
-		modprobe g_mass_storage file=$EMMC,$FLAG iManufacturer="Wiren Board" iProduct="Wiren Board"
-		while [ "x" == "x$_FLAG" ]; do sleep 2; _FLAG=`cat $FLAG`; done
-
-		echo "Deactivate Mass Storage device and reread partition table"
-		modprobe -r g_mass_storage
-		sleep 1
-		blockdev --rereadpt $EMMC
-		sleep 1
-
-		setup_usb_ssh &
+		echo "Activating Ethernet!"
+		touch /var/leases
+		ifconfig eth0 192.168.41.1 netmask 255.255.255.0 up
+		udhcpd
+		while ! ping -c 1 192.168.41.2; do true; done; echo 'Host is online'
+		echo "Now you can access device by ssh: ssh root@192.168.41.1"
+		dropbear -F -E
 		;;
 esac
 

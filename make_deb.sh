@@ -5,10 +5,10 @@ set -e
 PLATFORM=$1
 PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
 
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest.fit"}
+IMAGE_URL="http://fw-releases.wirenboard.com/utils/wb8_fit.fit"  # removed from s3; exists only in office cache!
 
 if [ -z "$PLATFORM" ]; then
-    echo "Usage: $0 6x/7x"
+    echo "Usage: $0 6x/7x/8x"
     exit 1
 fi
 
