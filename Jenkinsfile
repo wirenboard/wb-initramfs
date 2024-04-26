@@ -1,5 +1,5 @@
 Map config = [
-    defaultTargets: '8x',
+    defaultTargets: '6x 7x 8x',
     defaultImageUrls: "",
     defaultWbdevImage: '',
     defaultEnableTelegramAlert: false,
