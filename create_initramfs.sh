@@ -3,7 +3,7 @@ set -e
 #set -x
 
 [[ "$#" == "3" ]] || {
-	echo "Usage: $0 <rootfs> <initramfs_dir> wb2|wb6|wb7"
+	echo "Usage: $0 <rootfs> <initramfs_dir> wb2|wb6|wb7|wb8"
 	exit 1
 }
 
@@ -16,8 +16,11 @@ wb2*|wb5*)
 wb6*|wb7*)
     LIBDIR=/lib/arm-linux-gnueabihf
     ;;
+wb8*)
+    LIBDIR=/lib/aarch64-linux-gnu
+    ;;
 *)
-    echo "Wrong board type, use wb2 or wb6"
+    echo "Wrong board type, use wb2, wb6, wb7 or wb8"
     exit 1
     ;;
 esac
@@ -87,6 +90,7 @@ install_dir "/dev"
 install_dir "/proc"
 install_dir "/sys"
 install_dir "/tmp"
+install_dir "/run"
 
 install_dir "/sbin"
 install_dir "/usr/bin"
@@ -114,9 +118,11 @@ wb2*|wb5*)
     arm-linux-gnueabi-gcc -o "${FILES_DIR}/memdump" "${FILES_DIR}/memdump.c" -Wall -Wextra -pedantic -std=c99
     install_file "${FILES_DIR}/memdump" "/bin/memdump"
     install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.mxs /etc/fw_env.config
+    install_from_rootfs "$LIBDIR/ld-linux.so.3"
     ;;
 wb6*)
     install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.imx6 /etc/fw_env.config
+    install_from_rootfs "$LIBDIR/ld-linux.so.3"
     ;;
 wb7*)
     install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.sun8i /etc/fw_env.config
@@ -125,6 +131,22 @@ wb7*)
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
     install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-1.1/ateccx08.so
+    install_from_rootfs "$LIBDIR/ld-linux.so.3"
+    # WBEC flashing requirements:
+    install_from_rootfs /usr/bin/gpiofind
+    install_from_rootfs /usr/bin/gpioset
+    install_from_rootfs /usr/sbin/i2cdetect
+    install_from_rootfs /usr/bin/stm32flash
+    ;;
+wb8*)
+    install_file "$FILES_DIR/libupdate.wb8.sh" "/lib/libupdate.wb8.sh"
+    install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.sun50i /etc/fw_env.config
+    install_recursive /etc/ssl /etc/ssl
+    install_recursive /usr/lib/ssl /usr/lib/ssl
+    install_from_rootfs /usr/bin/c_rehash
+    install_from_rootfs /usr/bin/openssl
+    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-1.1/ateccx08.so
+    install_from_rootfs "$LIBDIR/ld-linux-aarch64.so.1"
     # WBEC flashing requirements:
     install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
@@ -154,7 +176,6 @@ FROM_ROOTFS=(
     "$LIBDIR/libnss_files.so.2"
     "$LIBDIR/libnss_files-2.31.so"
     "$LIBDIR/ld-2.31.so"
-    "$LIBDIR/ld-linux.so.3"
 
     /etc/shadow
     /etc/group

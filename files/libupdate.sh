@@ -33,6 +33,10 @@ for compat in $DT_COMPAT_LIST; do
             LIB=wb7
             break
             ;;
+        "wirenboard,wirenboard-8xx" )
+            LIB=wb8
+            break
+            ;;
     esac
 done
 
