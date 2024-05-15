@@ -10,17 +10,7 @@ if [ -z "$PLATFORM" ]; then
     exit 1
 fi
 
-# FIXME: use stable for WB8 when it's released
-case "$PLATFORM" in
-    8x)
-        RELEASE="testing"
-        ;;
-    *)
-        RELEASE="stable"
-        ;;
-esac
-
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/${RELEASE}/${PLATFORM}/latest.fit"}
+IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest.fit"}
 
 if ! which fpm || ! which dumpimage || ! which cpio; then
     # won't be used on CI after https://github.com/wirenboard/wirenboard/pull/163 is merged
