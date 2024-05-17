@@ -35,7 +35,7 @@ mkdir -p /var/lock
 
 for file in /dev/watchdog*; do
 	echo "Run busybox watchdog for $file"
-	/bin/busybox watchdog "$file" -t 1 -F &
+	/bin/busybox watchdog "$file" -t 500ms
 done
 
 source /lib/libupdate.sh
