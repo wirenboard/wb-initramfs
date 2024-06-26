@@ -189,6 +189,7 @@ FROM_ROOTFS=(
     /usr/bin/unshare
     /usr/lib/sftp-server
 
+    /usr/bin/pigz
     /sbin/sfdisk
     /usr/lib/wb-utils/prepare/vars.sh
     /usr/lib/wb-utils/prepare/partitions.sh
