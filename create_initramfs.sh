@@ -165,6 +165,9 @@ FROM_ROOTFS=(
 	/usr/bin/pv
     /sbin/mkfs.ext4
     /sbin/mkfs.vfat
+    /sbin/mkfs.exfat
+    /sbin/fdisk
+    /sbin/sfdisk
     /usr/lib/locale/locale-archive
     "$USRLIBDIR/gconv/gconv-modules.cache"
     "$USRLIBDIR/gconv/IBM850.so"
