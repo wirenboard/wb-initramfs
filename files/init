@@ -10,16 +10,28 @@ start_debug_console() {
 	umount /disk >/dev/null 2>&1 || true
 	umount /usb >/dev/null 2>&1 || true
 
-	led red trigger none
-	led red brightness 255
-	led green trigger none
-	led green brightness 0
+	# led red trigger none
+	# led red brightness 255
+	# led green trigger none
+	# led green brightness 0
 
 	TTY=/dev/console
 	exec setsid sh -c "exec sh <$TTY >$TTY 2>&1"
 }
 
-trap 'start_debug_console' EXIT
+indicate() {
+	exit_code=$?
+
+	if [[ ${exit_code} -eq 0 ]]; then
+		indicate_okay
+	else
+		indicate_fail
+	fi
+
+	start_debug_console
+}
+
+trap 'indicate && buzzer_off || buzzer_off' EXIT
 
 /bin/mknod /dev/null c 1 3
 /bin/mknod /dev/tty c 5 0
@@ -163,6 +175,100 @@ buzzer_update_beep() {
 	sleep 0.3
 }
 
+# two beeps to indicate the update
+indicate_okay() {
+	led red trigger none
+	led red brightness 0
+	led green trigger timer
+	led green brightness 255
+	led green delay_on 250
+	led green delay_off 250
+
+	echo "------ OKAY" >> /dev/ttyS0
+
+	rm /tmp/beep_flag || true
+
+	buzzer_init
+	sleep 0.5
+	buzzer_on
+	sleep 0.7
+	buzzer_off
+	sleep 0.7
+	buzzer_on
+	sleep 0.7
+	buzzer_off
+	sleep 0.7
+	buzzer_on
+	sleep 0.7
+	buzzer_off
+}
+
+indicate_fail() {
+	led green trigger none
+	led green brightness 0
+	led red trigger timer
+	led red brightness 255
+	led red delay_on 250
+	led red delay_off 250
+
+	echo "------ FAIL" >> /dev/ttyS0
+	rm /tmp/beep_flag || true
+
+	buzzer_init
+	sleep 0.5
+
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+	sleep 0.3
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+	sleep 0.3
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+	sleep 0.3
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+	sleep 0.3
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+	sleep 0.3
+	buzzer_on
+	sleep 0.3
+	buzzer_off
+}
+
+indicate_heartbit() {
+	led red trigger none
+	led red brightness 0
+	led green trigger timer
+	led green brightness 255
+	led green delay_on 1000
+	led green delay_off 10
+
+	echo enabled > /tmp/beep_flag
+
+	DUTY_CYCLE=100000 PERIOD=622222 buzzer_init
+	while true; do
+		if [[ -f /tmp/beep_flag ]]; then
+			buzzer_on
+			sleep 0.2
+			buzzer_off
+			sleep 0.3
+			buzzer_on
+			sleep 0.4
+			buzzer_off
+			sleep 1.5
+		fi
+	done
+}
+
+
+
 # Search for .fit files in a given directory
 #
 # @param $1 directory to look for .fit files
@@ -217,6 +323,7 @@ update_from_fit() {
 	set_led_update_in_progress &&
 	buzzer_update_beep &&
 	wb-run-update --from-initramfs --no-mqtt --no-remove "${FIT_DIR}/${FIT_NAME}"
+	return 0
 }
 
 
@@ -423,34 +530,122 @@ case "$BOOTMODE" in
 
 		wait_for_emmc
 
-		# Wiren Board 8 does not support USB gadget yet
-		if [ "$BOARD_FAMILY" == "wb8" ]; then
-			echo "Activating Ethernet"
-			touch /var/leases
-			ifconfig eth0 192.168.41.1 netmask 255.255.255.0 up
-			udhcpd
-			while ! ping -c 1 192.168.41.2; do true; done; echo 'Host is online'
-			echo "Now you can access device by ssh: ssh root@192.168.41.1"
-			dropbear -F -E
-		else
-			# create usb_mass_storage first
-			dd if=/dev/zero of=$FLAG bs=1K count=1
-			echo "Activate Mass Storage device"
-			led red trigger mmc0
-			modprobe g_mass_storage file=$EMMC,$FLAG iManufacturer="Wiren Board" iProduct="Wiren Board"
-			while [ "x" == "x$_FLAG" ]; do sleep 2; _FLAG=`cat $FLAG`; done
+		# # Wiren Board 8 does not support USB gadget yet
+		# if [ "$BOARD_FAMILY" == "wb8" ]; then
+		# 	echo "Activating Ethernet"
+		# 	touch /var/leases
+		# 	ifconfig eth0 192.168.41.1 netmask 255.255.255.0 up
+		# 	udhcpd
+		# 	while ! ping -c 1 192.168.41.2; do true; done; echo 'Host is online'
+		# 	echo "Now you can access device by ssh: ssh root@192.168.41.1"
+		# 	dropbear -F -E
+		# else
+		# 	# create usb_mass_storage first
+		# 	dd if=/dev/zero of=$FLAG bs=1K count=1
+		# 	echo "Activate Mass Storage device"
+		# 	led red trigger mmc0
+		# 	modprobe g_mass_storage file=$EMMC,$FLAG iManufacturer="Wiren Board" iProduct="Wiren Board"
+		# 	while [ "x" == "x$_FLAG" ]; do sleep 2; _FLAG=`cat $FLAG`; done
 
-			echo "Deactivate Mass Storage device and reread partition table"
-			modprobe -r g_mass_storage
-			sleep 1
-			blockdev --rereadpt $EMMC
-			sleep 1
+		# 	echo "Deactivate Mass Storage device and reread partition table"
+		# 	modprobe -r g_mass_storage
+		# 	sleep 1
+		# 	blockdev --rereadpt $EMMC
+		# 	sleep 1
 
-			setup_usb_ssh &
-		fi
+		# 	setup_usb_ssh &
+		# fi
 		;;
 esac
 
 
 sleep 1
-start_debug_console
+buzzer_init
+
+echo -e "\n\n\n\n\n\n\n\n\n------------Hello from WirenBoard recovery dumper!---------------\n" >> /dev/ttyS0
+
+mkdir -p /mnt/backup
+mkdir -p /mnt/oldroot
+mkdir -p /mnt/factoryreset
+mkdir -p /mnt/olddata
+
+sfdisk -d /dev/mmcblk1 > /tmp/actual_microsd_parttable.txt
+mount -o sync /dev/mmcblk1p3 /mnt/factoryreset
+cp /mnt/factoryreset/default_microsd_parttable.txt /tmp/
+if diff /tmp/default_microsd_parttable.txt /tmp/actual_microsd_parttable.txt; then
+	echo -e "n\np\n\n\nw\n" | fdisk /dev/mmcblk1  # create partition of all unallocated space
+	mkfs.exfat -n dump /dev/mmcblk1p4
+	sync
+	echo "---- Allocated partition to all free space!" >> /dev/ttyS0
+fi
+
+echo "---- Press & hold FW button to confirm Factoryreset from safe builtin FIT; Do nothing to dump files from WB" >> /dev/ttyS0
+if USE_BUZZER=y USE_ECHO=y WAIT_TIME=3 HOLD_TIME=5 wait_for_button; then
+    echo "---- FR confirmed!" >> /dev/ttyS0
+    set_led_update_in_progress &&
+    buzzer_update_beep &&
+    wb-run-update --from-initramfs --no-mqtt --no-reboot --no-remove --no-confirm "/mnt/factoryreset/wb6_update_FACTORYRESET.fit" || return 1 && echo "++++ FR done!" >> /dev/ttyS0
+	umount /mnt/olddata || true
+	mount /dev/mmcblk0p6 /mnt/olddata
+	if [[ -f "/mnt/olddata/.wb-restore/factoryreset.fit" ]]; then
+		if grep $(md5sum /mnt/olddata/.wb-restore/factoryreset.fit | awk '{ print $1; }') /mnt/factoryreset/wb7_fits_md5sums.txt; then
+			echo "---- Factory FIT was untouched" >> /dev/ttyS0
+		else
+		 	echo "---- !!!! Factory FIT not found in released! Replacing with safe bundled one" >> /dev/ttyS0
+			cp /mnt/factoryreset/wb6_update_FACTORYRESET.fit /mnt/olddata/.wb-restore/factoryreset.fit || return 1
+			sync
+			echo "---- Done" >> /dev/ttyS0
+		fi
+	fi
+	umount /mnt/olddata || true
+    return 0
+fi
+
+umount /mnt/factoryreset || true
+
+indicate_heartbit &
+
+SN=$(dd if=/dev/mmcblk0 bs=512 skip=2016 count=100 status=none | fdtget -t s - /fragment@0/__overlay__ device-serial)
+if [[ $? -ne 0 ]]; then
+	SN="unknown_wb"
+fi
+
+mount -o sync /dev/mmcblk1p4 /mnt/backup
+
+echo -e "\n---- Backing up emmc beginning" >> /dev/ttyS0
+dd if=/dev/mmcblk0 bs=1M count=32 | pigz > /mnt/backup/${SN}_mmcblk0_beginning.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p1" >> /dev/ttyS0
+dd if=/dev/mmcblk0p1 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p1.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p3" >> /dev/ttyS0
+dd if=/dev/mmcblk0p3 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p3.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p4" >> /dev/ttyS0
+dd if=/dev/mmcblk0p4 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p4.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p5" >> /dev/ttyS0
+dd if=/dev/mmcblk0p5 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p5.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+echo -e "\n---- Backing up all files" >> /dev/ttyS0
+mount -o sync /dev/mmcblk0p2 /mnt/oldroot
+mount -o sync /dev/mmcblk0p6 /mnt/oldroot/mnt/data
+tar -cf - /mnt/oldroot | pigz > /mnt/backup/${SN}_all_files.tar.gz || return 1
+sync
+echo "++++ Done" >> /dev/ttyS0
+
+umount /mnt/oldroot/data || true
+umount /mnt/oldroot || true
+umount /mnt/backup || true
+
+return 0
