@@ -185,6 +185,7 @@ indicate_okay() {
 	led green delay_off 250
 
 	echo "------ OKAY" >> /dev/ttyS0
+	echo "------ Turn power off & eject microsd" >> /dev/ttyS0
 
 	rm /tmp/beep_flag || true
 
@@ -570,10 +571,10 @@ mkdir -p /mnt/factoryreset
 mkdir -p /mnt/olddata
 
 sfdisk -d /dev/mmcblk1 > /tmp/actual_microsd_parttable.txt
-mount -o sync /dev/mmcblk1p3 /mnt/factoryreset
+mount -o sync /dev/mmcblk1p3 /mnt/factoryreset || return 1
 cp /mnt/factoryreset/default_microsd_parttable.txt /tmp/
 if diff /tmp/default_microsd_parttable.txt /tmp/actual_microsd_parttable.txt; then
-	echo -e "n\np\n\n\nw\n" | fdisk /dev/mmcblk1  # create partition of all unallocated space
+	echo -e "n\np\n\n\nt\n\n7\nw\n" | fdisk /dev/mmcblk1  # create partition of all unallocated space
 	mkfs.exfat -n dump /dev/mmcblk1p4
 	sync
 	echo "---- Allocated partition to all free space!" >> /dev/ttyS0
@@ -584,15 +585,19 @@ if USE_BUZZER=y USE_ECHO=y WAIT_TIME=3 HOLD_TIME=5 wait_for_button; then
     echo "---- FR confirmed!" >> /dev/ttyS0
     set_led_update_in_progress &&
     buzzer_update_beep &&
-    wb-run-update --from-initramfs --no-mqtt --no-reboot --no-remove --no-confirm "/mnt/factoryreset/wb6_update_FACTORYRESET.fit" || return 1 && echo "++++ FR done!" >> /dev/ttyS0
+    wb-run-update --from-initramfs --no-mqtt --no-reboot --factoryreset --no-remove --no-confirm "/mnt/factoryreset/wb_update_FACTORYRESET.fit" || return 1 && echo "++++ FR done!" >> /dev/ttyS0
+	for file in /dev/watchdog*; do
+		echo "---- Re-trigger watchdog for $file" >> /dev/ttyS0
+		/bin/busybox watchdog "$file" -t 500ms
+	done
 	umount /mnt/olddata || true
-	mount /dev/mmcblk0p6 /mnt/olddata
+	mount /dev/mmcblk0p6 /mnt/olddata || return 1
 	if [[ -f "/mnt/olddata/.wb-restore/factoryreset.fit" ]]; then
-		if grep $(md5sum /mnt/olddata/.wb-restore/factoryreset.fit | awk '{ print $1; }') /mnt/factoryreset/wb7_fits_md5sums.txt; then
+		if grep $(md5sum /mnt/olddata/.wb-restore/factoryreset.fit | awk '{ print $1; }') /mnt/factoryreset/wb_fits_md5sums.txt; then
 			echo "---- Factory FIT was untouched" >> /dev/ttyS0
 		else
 		 	echo "---- !!!! Factory FIT not found in released! Replacing with safe bundled one" >> /dev/ttyS0
-			cp /mnt/factoryreset/wb6_update_FACTORYRESET.fit /mnt/olddata/.wb-restore/factoryreset.fit || return 1
+			cp /mnt/factoryreset/wb_update_FACTORYRESET.fit /mnt/olddata/.wb-restore/factoryreset.fit || return 1
 			sync
 			echo "---- Done" >> /dev/ttyS0
 		fi
@@ -610,7 +615,7 @@ if [[ $? -ne 0 ]]; then
 	SN="unknown_wb"
 fi
 
-mount -o sync /dev/mmcblk1p4 /mnt/backup
+mount -o sync /dev/mmcblk1p4 /mnt/backup || return 1
 
 echo -e "\n---- Backing up emmc beginning" >> /dev/ttyS0
 dd if=/dev/mmcblk0 bs=1M count=32 | pigz > /mnt/backup/${SN}_mmcblk0_beginning.gz || return 1
@@ -638,8 +643,8 @@ sync
 echo "++++ Done" >> /dev/ttyS0
 
 echo -e "\n---- Backing up all files" >> /dev/ttyS0
-mount -o sync /dev/mmcblk0p2 /mnt/oldroot
-mount -o sync /dev/mmcblk0p6 /mnt/oldroot/mnt/data
+mount -o sync /dev/mmcblk0p2 /mnt/oldroot || return 1
+mount -o sync /dev/mmcblk0p6 /mnt/oldroot/mnt/data || return 1
 tar -cf - /mnt/oldroot | pigz > /mnt/backup/${SN}_all_files.tar.gz || return 1
 sync
 echo "++++ Done" >> /dev/ttyS0
