@@ -570,6 +570,8 @@ mkdir -p /mnt/oldroot
 mkdir -p /mnt/factoryreset
 mkdir -p /mnt/olddata
 
+logfile=/mnt/factoryreset/log_fr.txt
+
 sfdisk -d /dev/mmcblk1 > /tmp/actual_microsd_parttable.txt
 mount -o sync /dev/mmcblk1p3 /mnt/factoryreset || return 1
 cp /mnt/factoryreset/default_microsd_parttable.txt /tmp/
@@ -577,29 +579,29 @@ if diff /tmp/default_microsd_parttable.txt /tmp/actual_microsd_parttable.txt; th
 	echo -e "n\np\n\n\nt\n\n7\nw\n" | fdisk /dev/mmcblk1  # create partition of all unallocated space
 	mkfs.exfat -n dump /dev/mmcblk1p4
 	sync
-	echo "---- Allocated partition to all free space!" >> /dev/ttyS0
+	echo -e "\n---- Allocated partition to all free space!" | tee -a $logfile >> /dev/ttyS0
 fi
 
-echo "---- Press & hold FW button to confirm Factoryreset from safe builtin FIT; Do nothing to dump files from WB" >> /dev/ttyS0
+echo -e "\n---- Press & hold FW button to confirm Factoryreset from safe builtin FIT; Do nothing to dump files from WB" | tee -a $logfile >> /dev/ttyS0
 if USE_BUZZER=y USE_ECHO=y WAIT_TIME=3 HOLD_TIME=5 wait_for_button; then
-    echo "---- FR confirmed!" >> /dev/ttyS0
+    echo -e "\n---- FR confirmed!" | tee -a $logfile >> /dev/ttyS0
     set_led_update_in_progress &&
     buzzer_update_beep &&
-    wb-run-update --from-initramfs --no-mqtt --no-reboot --factoryreset --no-remove --no-confirm "/mnt/factoryreset/wb_update_FACTORYRESET.fit" || return 1 && echo "++++ FR done!" >> /dev/ttyS0
+    wb-run-update --from-initramfs --no-mqtt --no-reboot --factoryreset --no-remove --no-confirm "/mnt/factoryreset/wb_update_FACTORYRESET.fit" || return 1 && echo "++++ FR done!" | tee -a $logfile >> /dev/ttyS0
 	for file in /dev/watchdog*; do
-		echo "---- Re-trigger watchdog for $file" >> /dev/ttyS0
+		echo -e "\n---- Re-trigger watchdog for $file" | tee -a $logfile >> /dev/ttyS0
 		/bin/busybox watchdog "$file" -t 500ms
 	done
 	umount /mnt/olddata || true
 	mount /dev/mmcblk0p6 /mnt/olddata || return 1
 	if [[ -f "/mnt/olddata/.wb-restore/factoryreset.fit" ]]; then
 		if grep $(md5sum /mnt/olddata/.wb-restore/factoryreset.fit | awk '{ print $1; }') /mnt/factoryreset/wb_fits_md5sums.txt; then
-			echo "---- Factory FIT was untouched" >> /dev/ttyS0
+			echo -e "\n---- Factory FIT was untouched" | tee -a $logfile >> /dev/ttyS0
 		else
-		 	echo "---- !!!! Factory FIT not found in released! Replacing with safe bundled one" >> /dev/ttyS0
+		 	echo -e "\n---- !!!! Factory FIT not found in released! Replacing with safe bundled one" | tee -a $logfile >> /dev/ttyS0
 			cp /mnt/factoryreset/wb_update_FACTORYRESET.fit /mnt/olddata/.wb-restore/factoryreset.fit || return 1
 			sync
-			echo "---- Done" >> /dev/ttyS0
+			echo -e "\n---- Done" | tee -a $logfile >> /dev/ttyS0
 		fi
 	fi
 	umount /mnt/olddata || true
@@ -616,38 +618,44 @@ if [[ $? -ne 0 ]]; then
 fi
 
 mount -o sync /dev/mmcblk1p4 /mnt/backup || return 1
+logfile=/mnt/backup/log_backup.txt
 
-echo -e "\n---- Backing up emmc beginning" >> /dev/ttyS0
+echo -e "\n---- Backing up emmc beginning" | tee -a $logfile >> /dev/ttyS0
 dd if=/dev/mmcblk0 bs=1M count=32 | pigz > /mnt/backup/${SN}_mmcblk0_beginning.gz || return 1
 sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
 
-echo -e "\n---- Backing up mmcblk0p1" >> /dev/ttyS0
+echo -e "\n---- Backing up mmcblk0p1" | tee -a $logfile >> /dev/ttyS0
 dd if=/dev/mmcblk0p1 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p1.gz || return 1
 sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
 
-echo -e "\n---- Backing up mmcblk0p3" >> /dev/ttyS0
+echo -e "\n---- Backing up mmcblk0p2" | tee -a $logfile >> /dev/ttyS0
+dd if=/dev/mmcblk0p2 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p2.gz || return 1
+sync
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p6" | tee -a $logfile >> /dev/ttyS0
+dd if=/dev/mmcblk0p6 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p6.gz || return 1
+sync
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
+
+echo -e "\n---- Backing up mmcblk0p3" | tee -a $logfile >> /dev/ttyS0
 dd if=/dev/mmcblk0p3 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p3.gz || return 1
 sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
 
-echo -e "\n---- Backing up mmcblk0p4" >> /dev/ttyS0
+echo -e "\n---- Backing up mmcblk0p4" | tee -a $logfile >> /dev/ttyS0
 dd if=/dev/mmcblk0p4 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p4.gz || return 1
 sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
 
-echo -e "\n---- Backing up mmcblk0p5" >> /dev/ttyS0
+echo -e "\n---- Backing up mmcblk0p5" | tee -a $logfile >> /dev/ttyS0
 dd if=/dev/mmcblk0p5 bs=1M | pigz > /mnt/backup/${SN}_mmcblk0p5.gz || return 1
 sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ Done" | tee -a $logfile >> /dev/ttyS0
 
-echo -e "\n---- Backing up all files" >> /dev/ttyS0
-mount -o sync /dev/mmcblk0p2 /mnt/oldroot || return 1
-mount -o sync /dev/mmcblk0p6 /mnt/oldroot/mnt/data || return 1
-tar -cf - /mnt/oldroot | pigz > /mnt/backup/${SN}_all_files.tar.gz || return 1
-sync
-echo "++++ Done" >> /dev/ttyS0
+echo "++++ ALL Done" | tee -a $logfile >> /dev/ttyS0
 
 umount /mnt/oldroot/data || true
 umount /mnt/oldroot || true
