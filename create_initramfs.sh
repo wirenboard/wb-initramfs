@@ -162,6 +162,7 @@ FROM_ROOTFS=(
 	/usr/bin/fw_setenv
     /etc/profile
 	/usr/bin/fit_info
+    /usr/bin/chattr
 	/usr/bin/pv
     /sbin/mkfs.ext4
     /sbin/mkfs.vfat
