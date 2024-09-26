@@ -163,6 +163,7 @@ FROM_ROOTFS=(
     /etc/profile
 	/usr/bin/fit_info
     /usr/bin/chattr
+    /usr/bin/lsattr
 	/usr/bin/pv
     /sbin/mkfs.ext4
     /sbin/mkfs.vfat

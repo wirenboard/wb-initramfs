@@ -1,6 +1,6 @@
 wb-initenv (1.3.3) stable; urgency=medium
 
-  * add chattr tool
+  * add chattr & lsattr tools
 
  -- Vladimir Romanov <v.romanov@wirenboard.com>  Mon, 23 Sep 2024 14:36:29 +0300
 
