@@ -428,6 +428,7 @@ case "$BOOTMODE" in
 		# Wiren Board 8 does not support USB gadget yet
 		if [ "$BOARD_FAMILY" == "wb8" ]; then
 			echo "Activating Ethernet"
+			modprobe dwmac_sun8i || true
 			touch /var/leases
 			ifconfig eth0 192.168.41.1 netmask 255.255.255.0 up
 			udhcpd

@@ -1,3 +1,9 @@
+wb-initenv (1.3.4) stable; urgency=medium
+
+  * wb8: add modprobe dwmac_sun8i to init (enables ethernet in bootlet)
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Thu, 17 Oct 2024 13:03:21 +0300
+
 wb-initenv (1.3.3) stable; urgency=medium
 
   * add chattr & lsattr tools
