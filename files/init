@@ -341,7 +341,8 @@ wait_usb_gadget_connected() {
 }
 
 is_usb_gadget_supported() {
-	[[ "${BOARD_FAMILY}" == "wb7" ]]
+	# [[ "${BOARD_FAMILY}" == "wb7" ]]
+	[[ "${BOARD_FAMILY}" == "wb8" ]]
 }
 
 setup_usb_ram_mass_storage() {
