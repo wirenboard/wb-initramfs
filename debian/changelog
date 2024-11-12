@@ -1,3 +1,9 @@
+wb-initenv (1.3.6) stable; urgency=medium
+
+  * wb8.5x: fix buzzer to be compatible with posix sh
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Tue, 12 Nov 2024 23:01:22 +0300
+
 wb-initenv (1.3.5) stable; urgency=medium
 
   * wb8.5x: enable buzzer in initramfs (wb8.4x compatible too)

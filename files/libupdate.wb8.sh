@@ -35,9 +35,9 @@ buzzer_init() {
     local r1=1
     local r2=1
 
-    IFS=' ' read -r -a CHIP_BUZZER <<< "$(get_pwmchip_pwmbuzzer)"
-    local pwmchip="${CHIP_BUZZER[0]}"
-    local pwmbuzzer="${CHIP_BUZZER[1]}"
+    local chip_buzzer="$(get_pwmchip_pwmbuzzer)"
+    local pwmchip="$(echo $chip_buzzer | awk '{print $1}')"
+    local pwmbuzzer="$(echo $chip_buzzer | awk '{print $2}')"
 
     while [ $r1 -ne 0 ] || [ $r2 -ne 0 ]; do
         echo "$pwmbuzzer" > /sys/class/pwm/$pwmchip/export 2> /dev/null || true
@@ -49,17 +49,17 @@ buzzer_init() {
 }
 
 buzzer_on() {
-    IFS=' ' read -r -a CHIP_BUZZER <<< "$(get_pwmchip_pwmbuzzer)"
-    local pwmchip="${CHIP_BUZZER[0]}"
-    local pwmbuzzer="${CHIP_BUZZER[1]}"
+    local chip_buzzer="$(get_pwmchip_pwmbuzzer)"
+    local pwmchip="$(echo $chip_buzzer | awk '{print $1}')"
+    local pwmbuzzer="$(echo $chip_buzzer | awk '{print $2}')"
 
     echo "1" > /sys/class/pwm/$pwmchip/pwm${pwmbuzzer}/enable 2> /dev/null
 }
 
 buzzer_off() {
-    IFS=' ' read -r -a CHIP_BUZZER <<< "$(get_pwmchip_pwmbuzzer)"
-    local pwmchip="${CHIP_BUZZER[0]}"
-    local pwmbuzzer="${CHIP_BUZZER[1]}"
+    local chip_buzzer="$(get_pwmchip_pwmbuzzer)"
+    local pwmchip="$(echo $chip_buzzer | awk '{print $1}')"
+    local pwmbuzzer="$(echo $chip_buzzer | awk '{print $2}')"
 
     echo "0" > /sys/class/pwm/$pwmchip/pwm${pwmbuzzer}/enable 2> /dev/null
 }
