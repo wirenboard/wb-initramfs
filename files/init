@@ -117,6 +117,17 @@ check_fit_end_signature() {
 	[[ "$sig" == "$UPDATE_FIT_END_SIGNATURE" ]]
 }
 
+is_any_usb_a_inserted() {
+	local compat_str="wirenboard,usb-flashing-drive"
+	local hub_number=`grep -l $compat_str /sys/bus/usb/devices/*/of_node/compatible | tr -d -c 0-9 | cut -b 1`
+
+	if [[ ! -z $hub_number ]]; then
+		[[ `ls -d /sys/bus/usb/devices/${hub_number}* | wc -l` -gt 1 ]]
+	else  # fallback way: consider as inserted
+		/bin/true
+	fi
+}
+
 search_for_usb_drive() {
 	echo "Load modules for USB to work"
 	modprobe -q usb-storage
