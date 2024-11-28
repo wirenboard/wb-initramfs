@@ -388,14 +388,24 @@ case "$BOOTMODE" in
 
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
-		if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
-			enable_emmc_update="n"
-			wait_for_update_from_gadget
-		fi
-
-		if force_enable_usb_host && search_for_usb_drive; then
-			enable_emmc_update="n"
-			update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+		if [ "$BOARD_FAMILY" == "wb8" ]; then  # WB8+: USB first
+			if force_enable_usb_host && is_any_usb_a_inserted && search_for_usb_drive; then
+				enable_emmc_update="n"
+				update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+			fi
+			if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+				enable_emmc_update="n"
+				wait_for_update_from_gadget
+			fi
+		else  # Before WB8: Debug-network first
+			if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+				enable_emmc_update="n"
+				wait_for_update_from_gadget
+			fi
+			if force_enable_usb_host && search_for_usb_drive; then
+				enable_emmc_update="n"
+				update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+			fi
 		fi
 
 		if search_for_sd; then
