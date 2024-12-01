@@ -408,6 +408,7 @@ update_auto_routine_not_combined_debug_usb() {
 
 update_auto_routine_combined_debug_usb() {
 	# since WB8.5; update order: usb a (faster search) -> microsd -> debug network (w pressed fw button) -> factory fit
+	button_init
 	enable_emmc_update="y"
 
 	if is_any_usb_a_inserted && search_for_usb_drive; then
