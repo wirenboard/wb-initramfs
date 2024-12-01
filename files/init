@@ -123,7 +123,7 @@ is_any_usb_a_inserted() {
 
 	if [[ ! -z $hub_number ]]; then
 		[[ `ls -d /sys/bus/usb/devices/${hub_number}* | wc -l` -gt 1 ]]
-	else  # fallback way: consider as inserted
+	else  # fallback way: consider as something is inserted
 		/bin/true
 	fi
 }
@@ -382,41 +382,63 @@ setup_usb_ssh() {
 	dropbear -F -E
 }
 
+update_auto_routine_not_combined_debug_usb() {
+	# before WB8.5; update order: debug network -> usb a -> microsd -> factory fit
+	enable_emmc_update="y"
+
+	if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if force_enable_usb_host && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+	fi
+}
+
+update_auto_routine_combined_debug_usb() {
+	# since WB8.5; update order: usb a (faster search) -> microsd -> debug network (w pressed fw button) -> factory fit
+	enable_emmc_update="y"
+
+	if is_any_usb_a_inserted && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if button_down && is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+	fi
+}
+
 case "$BOOTMODE" in
 	update_auto)
-		enable_emmc_update="y"
-
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
-		if [ "$BOARD_FAMILY" == "wb8" ]; then  # WB8+: USB first
-			if force_enable_usb_host && is_any_usb_a_inserted && search_for_usb_drive; then
-				enable_emmc_update="n"
-				update_from_block_device "/dev/sd*" "" "USB Flash Drive"
-			fi
-			if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
-				enable_emmc_update="n"
-				wait_for_update_from_gadget
-			fi
-		else  # Before WB8: Debug-network first
-			if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
-				enable_emmc_update="n"
-				wait_for_update_from_gadget
-			fi
-			if force_enable_usb_host && search_for_usb_drive; then
-				enable_emmc_update="n"
-				update_from_block_device "/dev/sd*" "" "USB Flash Drive"
-			fi
+		if [ "$BOARD_FAMILY" == "wb8" ]; then
+			update_auto_routine_combined_debug_usb
+		else
+			update_auto_routine_not_combined_debug_usb
 		fi
-
-		if search_for_sd; then
-			enable_emmc_update="n"
-			update_from_block_device "${MICROSD}p*" "" "microSD card"
-		fi
-
-		if [[ "x${enable_emmc_update}" == "xy" ]]; then
-			update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
-		fi
-
 		;;
 	usbupdate*)
 		FIT_NAME="${BOOTMODE#*,}"
