@@ -433,11 +433,18 @@ update_auto_routine_combined_debug_usb() {
 	fi
 }
 
+is_board_wb85() {
+	# because of both 8x-85-compatible bootlet dts, we cannot guess board type via of_node/compatible way
+	# getting board type by wbec firmware's internal guess
+	local board_rev_by_wbec=`cat /sys/bus/spi/drivers/wbec/spi0.0/hwrev 2>/dev/null || true`
+	[[ $board_rev_by_wbec == "85" ]]
+}
+
 case "$BOOTMODE" in
 	update_auto)
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
-		if [ "$BOARD_FAMILY" == "wb8" ]; then
+		if [ "$BOARD_FAMILY" == "wb8" ] && is_board_wb85; then
 			update_auto_routine_combined_debug_usb
 		else
 			update_auto_routine_not_combined_debug_usb
