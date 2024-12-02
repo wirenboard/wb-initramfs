@@ -117,6 +117,17 @@ check_fit_end_signature() {
 	[[ "$sig" == "$UPDATE_FIT_END_SIGNATURE" ]]
 }
 
+is_any_usb_a_inserted() {
+	local compat_str="wirenboard,usb-flashing-drive"
+	local hub_number=`grep -l $compat_str /sys/bus/usb/devices/*/of_node/compatible | tr -d -c 0-9 | cut -b 1`
+
+	if [[ ! -z $hub_number ]]; then
+		[[ `ls -d /sys/bus/usb/devices/${hub_number}* | wc -l` -gt 1 ]]
+	else  # fallback way: consider as something is inserted
+		/bin/true
+	fi
+}
+
 search_for_usb_drive() {
 	echo "Load modules for USB to work"
 	modprobe -q usb-storage
@@ -371,31 +382,73 @@ setup_usb_ssh() {
 	dropbear -F -E
 }
 
+update_auto_routine_not_combined_debug_usb() {
+	# before WB8.5; update order: debug network -> usb a -> microsd -> factory fit
+	enable_emmc_update="y"
+
+	if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if force_enable_usb_host && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+	fi
+}
+
+update_auto_routine_combined_debug_usb() {
+	# since WB8.5; update order: usb a (faster search) -> microsd -> debug network (w pressed fw button) -> factory fit
+	button_init
+	enable_emmc_update="y"
+
+	echo "Hold FW button to enable flashing via debug-network"
+
+	if is_any_usb_a_inserted && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if button_down && is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+	fi
+}
+
+is_board_wb85() {
+	# because of both 8x-85-compatible bootlet dts, we cannot guess board type via of_node/compatible way
+	# getting board type by wbec firmware's internal guess
+	local board_rev_by_wbec=`cat /sys/bus/spi/drivers/wbec/spi0.0/hwrev 2>/dev/null || true`
+	[[ "$board_rev_by_wbec" == "85" ]]
+}
+
 case "$BOOTMODE" in
 	update_auto)
-		enable_emmc_update="y"
-
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
-		if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
-			enable_emmc_update="n"
-			wait_for_update_from_gadget
+		if [ "$BOARD_FAMILY" == "wb8" ] && is_board_wb85; then
+			update_auto_routine_combined_debug_usb
+		else
+			update_auto_routine_not_combined_debug_usb
 		fi
-
-		if force_enable_usb_host && search_for_usb_drive; then
-			enable_emmc_update="n"
-			update_from_block_device "/dev/sd*" "" "USB Flash Drive"
-		fi
-
-		if search_for_sd; then
-			enable_emmc_update="n"
-			update_from_block_device "${MICROSD}p*" "" "microSD card"
-		fi
-
-		if [[ "x${enable_emmc_update}" == "xy" ]]; then
-			update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
-		fi
-
 		;;
 	usbupdate*)
 		FIT_NAME="${BOOTMODE#*,}"
