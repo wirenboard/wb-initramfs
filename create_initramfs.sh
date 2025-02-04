@@ -200,6 +200,8 @@ FROM_ROOTFS=(
     /bin/dd
     /sbin/dumpe2fs
     /sbin/resize2fs
+    /sbin/e2fsck
+    /sbin/fdisk
 )
 
 for f in "${FROM_ROOTFS[@]}"; do
