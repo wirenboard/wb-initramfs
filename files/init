@@ -440,6 +440,14 @@ is_board_wb85() {
 	[[ "$board_rev_by_wbec" == "85" ]]
 }
 
+if [[ ! $BOOTMODE ]]; then
+	mmc writeprotect user set pwron 0 32768 /dev/mmcblk0  # uboot (set up to boot from special partition) & wirenboard.dts
+	mmc writeprotect user set pwron 4243456 1015808 /dev/mmcblk0  # special partition: kernel + initram & factory-fit
+	mkdir -p /mnt/root
+	mount -o ro /dev/mmcblk0p2 /mnt/root
+	exec switch_root /mnt/root /sbin/init
+fi
+
 case "$BOOTMODE" in
 	update_auto)
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
