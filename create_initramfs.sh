@@ -111,6 +111,7 @@ install_file "$FILES_DIR/libupdate.wb6.sh" "/lib/libupdate.wb6.sh"
 install_file "$FILES_DIR/libupdate.wb7.sh" "/lib/libupdate.wb7.sh"
 install_file "$FILES_DIR/wait_for_button.sh" "/bin/wait_for_button"
 install_file "$FILES_DIR/README.ramdisk.txt" "/usr/share/README.ramdisk.txt"
+install_file "$FILES_DIR/demokit_layout.txt" "/demokit_layout.txt"
 
 
 case $FLAVOUR in

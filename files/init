@@ -441,67 +441,30 @@ is_board_wb85() {
 }
 
 if [[ ! $BOOTMODE ]]; then
+    echo "Setting write protection (uboot & /dev/mmcblk0p3)..."
 	mmc writeprotect user set pwron 0 32768 /dev/mmcblk0  # uboot (set up to boot from special partition) & wirenboard.dts
 	mmc writeprotect user set pwron 4243456 1015808 /dev/mmcblk0  # special partition: kernel + initram & factory-fit
 	mkdir -p /mnt/root
 	mount -o ro /dev/mmcblk0p2 /mnt/root
+	echo "Booting rootfs..."
 	exec switch_root /mnt/root /sbin/init
+else
+    echo "Recovering disc layout..."
+	sfdisk < /demokit_layout.txt /dev/mmcblk0
+	mkfs.ext4 -F /dev/mmcblk0p2
+	mkfs.ext4 -F /dev/mmcblk0p6
+	echo "Recovering factory fit (to be compatible w install_update.sh)..."
+	mkdir -p recovery
+	mount /dev/mmcblk0p3 recovery/
+	mkdir -p data
+	mount /dev/mmcblk0p6 data
+	cp -r recovery/.wb-restore/ data/
+	sync
+	umount data/
+	umount recovery/
+	echo "Launching wb-run-update..."
+	update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
 fi
-
-case "$BOOTMODE" in
-	update_auto)
-		is_usb_gadget_supported && setup_usb_ram_mass_storage
-
-		if [ "$BOARD_FAMILY" == "wb8" ] && is_board_wb85; then
-			update_auto_routine_combined_debug_usb
-		else
-			update_auto_routine_not_combined_debug_usb
-		fi
-		;;
-	usbupdate*)
-		FIT_NAME="${BOOTMODE#*,}"
-		[[ "${FIT_NAME}" == "usbupdate" ]] && FIT_NAME="wb_update.fit"
-
-		search_for_usb_drive &&
-			update_from_block_device "/dev/sd*" " ${FIT_NAME}" "USB Flash Drive"
-		;;
-	sdupdate*)
-		FIT_NAME="${BOOTMODE#*,}"
-		[[ "${FIT_NAME}" == "sdupdate" ]] && FIT_NAME="wb_update.fit"
-
-		search_for_sd &&
-			update_from_block_device "${MICROSD}p*" " ${FIT_NAME}" "microSD card"
-		;;
-	webupdate*)
-		FIT_NAME="${BOOTMODE#*,}"
-		update_from_emmc "$FIT_NAME" --from-webupdate || {
-			echo "Web UI-triggered update failed"
-			if [ -n "$DEBUG" ] ; then
-				reboot -f
-			fi
-		}
-		;;
-	usbgadget|*)
-		FLAG=/flag
-
-		wait_for_emmc
-		# create usb_mass_storage first
-		dd if=/dev/zero of=$FLAG bs=1K count=1
-		echo "Activate Mass Storage device"
-		led red trigger mmc0
-		modprobe g_mass_storage file=$EMMC,$FLAG iManufacturer="Wiren Board" iProduct="Wiren Board"
-		while [ "x" == "x$_FLAG" ]; do sleep 2; _FLAG=`cat $FLAG`; done
-
-		echo "Deactivate Mass Storage device and reread partition table"
-		modprobe -r g_mass_storage
-		sleep 1
-		blockdev --rereadpt $EMMC
-		sleep 1
-
-		setup_usb_ssh &
-		;;
-esac
-
 
 sleep 1
 start_debug_console
