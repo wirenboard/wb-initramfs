@@ -411,7 +411,7 @@ update_auto_routine_combined_debug_usb() {
 	button_init
 	enable_emmc_update="y"
 
-	echo "Hold FW button to enable flashing via debug-network"
+	echo "Hold FW button to enable flashing via Debug USB"
 
 	if is_any_usb_a_inserted && search_for_usb_drive; then
 		enable_emmc_update="n"
