@@ -176,8 +176,8 @@ FROM_ROOTFS=(
     /usr/bin/xxd
 
     "$LIBDIR/libnss_files.so.2"
-    "$LIBDIR/libnss_files-2.31.so"
-    "$LIBDIR/ld-2.31.so"
+    #"$LIBDIR/libnss_files-2.31.so"
+    #"$LIBDIR/ld-2.31.so"
 
     /etc/shadow
     /etc/group
