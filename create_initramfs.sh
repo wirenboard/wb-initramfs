@@ -130,7 +130,7 @@ wb7*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-1.1/ateccx08.so
+    install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-3/ateccx08.so
     install_from_rootfs "$LIBDIR/ld-linux.so.3"
     # WBEC flashing requirements:
     install_from_rootfs /usr/bin/gpiofind
@@ -145,7 +145,7 @@ wb8*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-1.1/ateccx08.so
+    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-3/ateccx08.so
     install_from_rootfs "$LIBDIR/ld-linux-aarch64.so.1"
     # WBEC flashing requirements:
     install_from_rootfs /usr/bin/gpiofind
