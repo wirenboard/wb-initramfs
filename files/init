@@ -36,6 +36,7 @@ mkdir -p /dev/shm
 mkdir -p /var/lock
 
 for file in /dev/watchdog*; do
+	[ -e "$file" ] || continue
 	echo "Run busybox watchdog for $file"
 	/bin/busybox watchdog "$file" -t 500ms
 done

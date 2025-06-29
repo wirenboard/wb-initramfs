@@ -1,3 +1,9 @@
+wb-initenv (1.6.0.3) stable; urgency=medium
+
+  * no func changes: just build with trixie-rootfs
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Fri, 10 Apr 2026 21:13:29 +0300
+
 wb-initramfs (1.5.5) stable; urgency=medium
 
   * Fix buzzer_init on wb8

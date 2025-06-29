@@ -2,8 +2,8 @@ Map config = [
     defaultTargets: '6x 7x 8x',
     wbReleases: ['stable', 'testing'],
     defaultImageUrls: "",
-    defaultFitBuildIds: "",
-    defaultWbdevImage: '',
+    defaultFitBuildIds: "14311 14312 14310",
+    defaultWbdevImage: 'registry.wirenboard.lan/contactless/devenv_test:trixie',
     defaultEnableTelegramAlert: false,
     customReleaseBranchPattern: '^\b$'  // never-matching pattern
 ]

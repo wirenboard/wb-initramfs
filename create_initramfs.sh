@@ -124,7 +124,7 @@ wb2*|wb5*)
     ;;
 wb6*)
     install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.imx6 /etc/fw_env.config
-    install_from_rootfs "$LIBDIR/ld-linux.so.3"
+    install_from_rootfs "$LIBDIR/ld-linux-armhf.so.3"
     ;;
 wb7*)
     install_from_rootfs /usr/share/wb-configs/u-boot/fw_env.config.wb.sun8i /etc/fw_env.config
@@ -132,10 +132,9 @@ wb7*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-1.1/ateccx08.so
-    install_from_rootfs "$LIBDIR/ld-linux.so.3"
+    install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-3/ateccx08.so
+    install_from_rootfs "$LIBDIR/ld-linux-armhf.so.3"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash
@@ -147,10 +146,9 @@ wb8*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-1.1/ateccx08.so
+    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-3/ateccx08.so
     install_from_rootfs "$LIBDIR/ld-linux-aarch64.so.1"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash
@@ -175,11 +173,8 @@ FROM_ROOTFS=(
 	/usr/bin/wb-run-update
     /usr/sbin/dropbear
     /usr/bin/dropbearkey
-    /usr/bin/xxd
 
     "$LIBDIR/libnss_files.so.2"
-    "$LIBDIR/libnss_files-2.31.so"
-    "$LIBDIR/ld-2.31.so"
 
     /etc/shadow
     /etc/group
