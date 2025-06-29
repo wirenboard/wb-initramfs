@@ -131,7 +131,7 @@ wb7*)
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
     install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-3/ateccx08.so
-    install_from_rootfs "$LIBDIR/ld-linux.so.3"
+    install_from_rootfs "$LIBDIR/ld-linux-armhf.so.3"
     # WBEC flashing requirements:
     install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
