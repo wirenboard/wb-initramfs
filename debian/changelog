@@ -1,3 +1,9 @@
+wb-initenv (1.4.0) stable; urgency=medium
+
+  * no func changes: just build with trixie-rootfs
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Wed, 29 Jun 2025 21:13:29 +0300
+
 wb-initenv (1.3.9) stable; urgency=medium
 
   * Rename debug-network to Debug USB
