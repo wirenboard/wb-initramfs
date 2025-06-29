@@ -133,7 +133,7 @@ wb7*)
     install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-3/ateccx08.so
     install_from_rootfs "$LIBDIR/ld-linux-armhf.so.3"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
+    # install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash
