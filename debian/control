@@ -1,4 +1,4 @@
 # WARNING: this is a minimal control file to make dch happy.
 # Actual control file for the package will be generated using fpm in make_deb.sh
-Source: wb-initenv
+Source: wb-initramfs
 Maintainer: Wiren Board team <info@wirenboard.com>
