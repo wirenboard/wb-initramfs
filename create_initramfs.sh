@@ -189,8 +189,6 @@ FROM_ROOTFS=(
     /usr/lib/sftp-server
 
     /sbin/sfdisk
-    /usr/lib/wb-utils/prepare/vars.sh
-    /usr/lib/wb-utils/prepare/partitions.sh
     /usr/lib/wb-utils/device-factory-fdt.sh
     /usr/bin/dtc
     /usr/bin/fdtoverlay
