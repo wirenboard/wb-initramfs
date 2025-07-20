@@ -4,13 +4,14 @@ set -e
 
 PLATFORM=$1
 PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
+WB_RELEASE=${WB_RELEASE:-stable}
 
 if [ -z "$PLATFORM" ]; then
     echo "Usage: $0 6x/7x/8x"
     exit 1
 fi
 
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/stable/${PLATFORM}/latest.fit"}
+IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/${WB_RELEASE}/${PLATFORM}/latest.fit"}
 
 if ! which fpm || ! which dumpimage || ! which cpio; then
     # won't be used on CI after https://github.com/wirenboard/wirenboard/pull/163 is merged
@@ -64,9 +65,9 @@ BOOTLET_DIR="$DEB_DIR/usr/src/wb-initramfs/wb${PLATFORM}-bootlet"
 mkdir -p "$BOOTLET_DIR"
 cp "$INITRAMFS_FILE" "$BOOTLET_DIR/initramfs.cpio.gz"
 
-# FIXME: autodetect debian version here
 DCH_VERSION="$(head -n1 debian/changelog | sed -r 's/.*\((.*)\).*/\1/')"
-PKG_VERSION="${DCH_VERSION}-deb11-${FW_VERSION}${VERSION_SUFFIX}"
+DEB_VERSION="$(source $ROOTFS_DIR/etc/os-release; echo $VERSION_ID)"
+PKG_VERSION="${DCH_VERSION}-deb${DEB_VERSION}-${FW_VERSION}${VERSION_SUFFIX}"
 echo "$PKG_VERSION" > "$BOOTLET_DIR/version"
 
 PKG_NAME="wb-initramfs-wb$PLATFORM"
