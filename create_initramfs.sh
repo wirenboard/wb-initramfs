@@ -75,7 +75,7 @@ install_from_rootfs() {
 	install_file "$ROOTFS/$src" "$dst"
 
 	# If file is executable, need to get its shared lib dependencies too
-	# TODO: lddtree in deb11 doesn't support --copy-to-tree, use after switch to deb13
+	# TODO: lddtree (from pax-utils) in deb11 doesn't support --copy-to-tree, use after switch to deb13
 	# lddtree --skip-non-elfs -R "$ROOTFS" --copy-to-tree "$INITRAMFS" "$src"
 	if [[ -x "$ROOTFS/$src" ]]; then
 		chroot "$ROOTFS" ldd "$src" |
