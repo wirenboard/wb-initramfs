@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIBS_PATH=/lib/
+LIBS_PATH=/lib
 DT_COMPAT_LIST=`tr < /proc/device-tree/compatible '\000' '\n'`
 
 for compat in $DT_COMPAT_LIST; do
@@ -40,7 +40,7 @@ for compat in $DT_COMPAT_LIST; do
     esac
 done
 
-source ${LIBS_PATH}/libupdate.${LIB}.sh || {
+[ -f "${LIBS_PATH}/libupdate.${LIB}.sh" ] && source ${LIBS_PATH}/libupdate.${LIB}.sh || {
     echo "Unknown platform"
     exit 1
 }

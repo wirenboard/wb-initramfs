@@ -1,5 +1,6 @@
 Map config = [
     defaultTargets: '6x 7x 8x',
+    wbReleases: ['stable', 'testing'],
     defaultImageUrls: "",
     defaultWbdevImage: '',
     defaultEnableTelegramAlert: false,
@@ -12,7 +13,8 @@ pipeline {
     }
     parameters {
         string(name: 'TARGETS', defaultValue: config.defaultTargets, description: 'space-separated list')
-        string(name: 'FIT_URLS', defaultValue: config.defaultImageUrls, description: 'space-separated list')
+        choice(name: 'WB_RELEASE', choices: config.wbReleases, description: 'wirenboard release (from WB repo)')
+        string(name: 'FIT_URLS', defaultValue: config.defaultImageUrls, description: 'space-separated list (leave empty for latest.fit)')
         booleanParam(name: 'ADD_VERSION_SUFFIX', defaultValue: true, description: 'for non dev/* branches')
         booleanParam(name: 'UPLOAD_TO_POOL', defaultValue: true,
                      description: 'works only with ADD_VERSION_SUFFIX to keep staging clean')
@@ -69,7 +71,7 @@ pipeline {
                         def versionSuffix = env.VERSION_SUFFIX?:''
 
                         stage("Build ${currentTarget}") {
-                            sh "wbdev root bash -c 'VERSION_SUFFIX=${versionSuffix} ./make_deb.sh ${currentTarget} ${currentUrl}'"
+                            sh "wbdev root bash -c 'VERSION_SUFFIX=${versionSuffix} WB_RELEASE=${params.WB_RELEASE} ./make_deb.sh ${currentTarget} ${currentUrl}'"
                         }
                     }
                 }
