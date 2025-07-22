@@ -274,6 +274,7 @@ wait_for_emmc() {
 }
 
 update_from_emmc() {
+	local ROOT_PART="${EMMC}p2"
 	local DATA_PART="${EMMC}p6"
 	local FIT="/mnt/data/$1"
 	shift
@@ -284,8 +285,15 @@ update_from_emmc() {
 
 	mkdir -p /mnt/
 	mkdir -p /mnt/data
-	mount -t auto "${DATA_PART}" /mnt/data &&
-		[[ -e "$FIT" ]] &&
+	if [[ -b "$DATA_PART" ]]; then
+		mount -t auto "${DATA_PART}" /mnt/data
+	else
+		mkdir -p /mnt/rootfs
+		mount -t auto "${ROOT_PART}" /mnt/rootfs
+		mount --bind /mnt/rootfs/mnt/data /mnt/data
+	fi
+
+	[[ -f "$FIT" ]] &&
 		check_fit_end_signature "$FIT" &&
 		buzzer_update_beep &&
 		wb-run-update  --from-initramfs --no-mqtt "$@" "$FIT"
