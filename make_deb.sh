@@ -45,6 +45,7 @@ cp /etc/resolv.conf "$ROOTFS_DIR"/etc/resolv.conf
 
 echo "Chrooting into rootfs in order to install more packages..."
 "$ROOTFS_DIR"/chroot_this.sh sh -c " \
+    echo 'deb http://deb.wirenboard.com/all experimental.extended-rootfs main' > /etc/apt/sources.list.d/extended-rootfs.list
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y $PACKAGES"
