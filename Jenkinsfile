@@ -1,6 +1,6 @@
 Map config = [
     defaultTargets: '6x 7x 8x',
-    wbReleases: ['stable', 'testing'],
+    wbReleases: ['testing', 'stable'],
     defaultImageUrls: "",
     defaultWbdevImage: '',
     defaultEnableTelegramAlert: false,
