@@ -18,7 +18,6 @@ pipeline {
         booleanParam(name: 'ADD_VERSION_SUFFIX', defaultValue: true, description: 'for non dev/* branches')
         booleanParam(name: 'UPLOAD_TO_POOL', defaultValue: true,
                      description: 'works only with ADD_VERSION_SUFFIX to keep staging clean')
-        booleanParam(name: 'CLEAN', defaultValue: false, description: 'force cleaned on dev/* branches')
         booleanParam(name: 'FORCE_OVERWRITE', defaultValue: false, description: 'replace existing version of package in apt')
         booleanParam(name: 'REPLACE_RELEASE', defaultValue: false, description: 'replace existing github release')
         string(name: 'WBDEV_IMAGE', defaultValue: config.defaultWbdevImage, description: 'docker image path and tag')
@@ -43,14 +42,7 @@ pipeline {
 
             steps {
                 script {
-                    def baseCommit = sh(returnStdout: true, script: '''\\
-                        git log --diff-filter=A --cherry --pretty=format:"%h" -- debian/changelog''').trim()
-
-                    def versionSuffix = sh(returnStdout: true, script: """\\
-                        echo ~exp~`echo ${BRANCH_NAME} | sed -e 's/\\W/+/g' -e 's/_/+/g'`~`\\
-                        git rev-list --count HEAD...${baseCommit}`~g`\\
-                        git rev-parse --short HEAD`""").trim()
-                    env.VERSION_SUFFIX = versionSuffix
+                    env.VERSION_SUFFIX = wb.makeVersionSuffixFromBranch()
                 }
             }
         }
