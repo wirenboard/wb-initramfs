@@ -43,6 +43,8 @@ done
 source /lib/libupdate.sh
 
 EMMC=/dev/mmcblk0
+ROOT_PART="${EMMC}p2"
+DATA_PART="${EMMC}p6"
 MICROSD=/dev/mmcblk1
 RAMDISK_FS="/tmp/bigtmpfs"
 RAMDISK="${RAMDISK_FS}/ramdisk.img"
@@ -271,8 +273,6 @@ wait_for_emmc() {
 }
 
 update_from_emmc() {
-	local ROOT_PART="${EMMC}p2"
-	local DATA_PART="${EMMC}p6"
 	local FIT="/$1"
 	shift
 
@@ -408,7 +408,11 @@ update_auto_routine_not_combined_debug_usb() {
 	fi
 
 	if [[ "x${enable_emmc_update}" == "xy" ]]; then
-		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+		local fit_name=".wb-restore/factoryreset.fit"
+		if [[ ! -b "$DATA_PART" ]]; then
+			fit_name="mnt/data/$fit_name"
+		fi
+		update_from_emmc "$fit_name" --no-remove --from-emmc-factoryreset
 	fi
 }
 
@@ -435,7 +439,11 @@ update_auto_routine_combined_debug_usb() {
 	fi
 
 	if [[ "x${enable_emmc_update}" == "xy" ]]; then
-		update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
+		local fit_name=".wb-restore/factoryreset.fit"
+		if [[ ! -b "$DATA_PART" ]]; then
+			fit_name="mnt/data/$fit_name"
+		fi
+		update_from_emmc "$fit_name" --no-remove --from-emmc-factoryreset
 	fi
 }
 
