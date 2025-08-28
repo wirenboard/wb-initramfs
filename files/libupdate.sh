@@ -29,7 +29,7 @@ for compat in $DT_COMPAT_LIST; do
             LIB=wb6
             break
             ;;
-        "wirenboard,wirenboard-700" )
+        "wirenboard,wirenboard-7xx" )
             LIB=wb7
             break
             ;;
