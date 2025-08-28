@@ -455,6 +455,8 @@ is_board_wb85() {
 }
 
 case "$BOOTMODE" in
+	debug_console)
+		;;
 	update_auto)
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
