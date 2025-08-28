@@ -75,7 +75,7 @@ for compat in $DT_COMPAT_LIST; do
 			sleep 1
 			break
 			;;
-		"wirenboard,wirenboard-700" )
+		"wirenboard,wirenboard-7xx" )
 			echo "Board is WB7"
 			BOARD_FAMILY="wb7"
 			break
