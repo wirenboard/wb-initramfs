@@ -173,7 +173,6 @@ FROM_ROOTFS=(
 	/usr/bin/wb-run-update
     /usr/sbin/dropbear
     /usr/bin/dropbearkey
-    /usr/bin/xxd
 
     "$LIBDIR/libnss_files.so.2"
     #"$LIBDIR/libnss_files-2.31.so"
