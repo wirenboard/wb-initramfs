@@ -148,7 +148,7 @@ wb8*)
     install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-3/ateccx08.so
     install_from_rootfs "$LIBDIR/ld-linux-aarch64.so.1"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
+    # install_from_rootfs /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash
