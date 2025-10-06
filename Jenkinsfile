@@ -19,6 +19,7 @@ pipeline {
         booleanParam(name: 'UPLOAD_TO_POOL', defaultValue: true,
                      description: 'works only with ADD_VERSION_SUFFIX to keep staging clean')
         booleanParam(name: 'FORCE_OVERWRITE', defaultValue: false, description: 'replace existing version of package in apt')
+        booleanParam(name: 'PUBLISH_RELEASE', defaultValue: true, description: 'publish github release')
         booleanParam(name: 'REPLACE_RELEASE', defaultValue: false, description: 'replace existing github release')
         string(name: 'WBDEV_IMAGE', defaultValue: config.defaultWbdevImage, description: 'docker image path and tag')
         booleanParam(name: 'ENABLE_TELEGRAM_ALERT', defaultValue: config.defaultEnableTelegramAlert, description: 'send alert if build fails')
@@ -86,6 +87,7 @@ pipeline {
                 wbDeploy projectSubdir: '.',
                          resultSubdir: env.RESULT_SUBDIR,
                          forceOverwrite: params.FORCE_OVERWRITE,
+                         withGithubRelease: params.PUBLISH_RELEASE,
                          replaceRelease: params.REPLACE_RELEASE,
                          uploadJob: wb.repos.devTools.uploadJob,
                          aptlyConfig: wb.repos.devTools.aptlyConfig
