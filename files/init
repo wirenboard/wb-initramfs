@@ -33,6 +33,8 @@ indicate() {
 
 trap 'indicate && buzzer_off || buzzer_off' EXIT
 
+mount -t debugfs none /sys/kernel/debug
+
 /bin/mknod /dev/null c 1 3
 /bin/mknod /dev/tty c 5 0
 
@@ -53,6 +55,8 @@ done
 source /lib/libupdate.sh
 
 EMMC=/dev/mmcblk0
+ROOT_PART="${EMMC}p2"
+DATA_PART="${EMMC}p6"
 MICROSD=/dev/mmcblk1
 RAMDISK_FS="/tmp/bigtmpfs"
 RAMDISK="${RAMDISK_FS}/ramdisk.img"
@@ -83,7 +87,7 @@ for compat in $DT_COMPAT_LIST; do
 			sleep 1
 			break
 			;;
-		"wirenboard,wirenboard-700" )
+		"wirenboard,wirenboard-7xx" )
 			echo "Board is WB7"
 			BOARD_FAMILY="wb7"
 			break
@@ -106,7 +110,7 @@ set_led_update_in_progress() {
 	led green trigger timer
 	led green delay_on 250
 	led green delay_off 250
-} 
+}
 
 set_led_prompt_user() {
 	led red trigger timer
@@ -116,8 +120,7 @@ set_led_prompt_user() {
 	led green trigger timer
 	led green delay_on 200
 	led green delay_off 200
-} 
-
+}
 
 check_fit_end_signature() {
 	local UPDATE_FIT_END_SIGNATURE="__WB_UPDATE_FIT_END__"
@@ -125,6 +128,17 @@ check_fit_end_signature() {
 	local sig_len=`echo -n "$UPDATE_FIT_END_SIGNATURE" | wc -c`
 	local sig=`tail -c $sig_len "$1"`
 	[[ "$sig" == "$UPDATE_FIT_END_SIGNATURE" ]]
+}
+
+is_any_usb_a_inserted() {
+	local compat_str="wirenboard,usb-flashing-drive"
+	local hub_number=`grep -l $compat_str /sys/bus/usb/devices/*/of_node/compatible | tr -d -c 0-9 | cut -b 1`
+
+	if [[ ! -z $hub_number ]]; then
+		[[ `ls -d /sys/bus/usb/devices/${hub_number}* | wc -l` -gt 1 ]]
+	else  # fallback way: consider as something is inserted
+		/bin/true
+	fi
 }
 
 search_for_usb_drive() {
@@ -171,7 +185,7 @@ buzzer_update_beep() {
 	buzzer_on
 	sleep 0.1
 	buzzer_off
-	
+
 	sleep 0.3
 }
 
@@ -282,7 +296,7 @@ search_for_fit() {
 	for FNAME in ${FIT_NAMES}; do
 		local FIT="$DIR/$FNAME"
 		if [[ -e "${FIT}" ]]; then
-			if [[ ! -z "${FOUND_FIT_NAME}" ]]; then
+			if [[ -n "${FOUND_FIT_NAME}" ]]; then
 				>&2 echo "ERROR: multiple .fit found on ${SOURCE} (${DIR}): ${FOUND_FIT_NAME} and ${FNAME}. Leave just one from a list: ${FIT_NAMES}"
 				return 1
 			fi
@@ -291,7 +305,7 @@ search_for_fit() {
 		fi
 	done
 
-	if [[ ! -z "$FOUND_FIT_NAME" ]]; then
+	if [[ -n "$FOUND_FIT_NAME" ]]; then
 		if check_fit_end_signature "$DIR/$FOUND_FIT_NAME"; then
 			echo $FOUND_FIT_NAME
 			return 0
@@ -326,8 +340,6 @@ update_from_fit() {
 	wb-run-update --from-initramfs --no-mqtt --no-remove "${FIT_DIR}/${FIT_NAME}"
 	return 0
 }
-
-
 
 # @param $1 block device path spec
 # @param $2 .fit filename. If blank, look for all possible file names
@@ -369,8 +381,7 @@ wait_for_emmc() {
 }
 
 update_from_emmc() {
-	local DATA_PART="${EMMC}p6"
-	local FIT="/mnt/data/$1"
+	local FIT="/$1"
 	shift
 
 	wait_for_emmc
@@ -379,8 +390,16 @@ update_from_emmc() {
 
 	mkdir -p /mnt/
 	mkdir -p /mnt/data
-	mount -t auto "${DATA_PART}" /mnt/data &&
-		[[ -e "$FIT" ]] &&
+	if [[ -b "$DATA_PART" ]]; then
+		mount -t auto "${DATA_PART}" /mnt/data
+		FIT="/mnt/data$FIT"
+	else
+		mkdir -p /mnt/rootfs
+		mount -t auto "${ROOT_PART}" /mnt/rootfs
+		FIT="/mnt/rootfs$FIT"
+	fi
+
+	[[ -f "$FIT" ]] &&
 		check_fit_end_signature "$FIT" &&
 		buzzer_update_beep &&
 		wb-run-update  --from-initramfs --no-mqtt "$@" "$FIT"
@@ -447,27 +466,27 @@ wait_usb_gadget_connected() {
 }
 
 is_usb_gadget_supported() {
-	[[ "${BOARD_FAMILY}" == "wb7" ]]
+	[[ "${BOARD_FAMILY}" == "wb8" || "${BOARD_FAMILY}" == "wb7" ]]
 }
 
 setup_usb_ram_mass_storage() {
-		# create usb_mass_storage first
-		MEMSIZE_KB=`cat /proc/meminfo | grep MemTotal | awk '{print $2}'`
-		MEMSIZE_MB=$((MEMSIZE_KB / 1024))
-		mkdir -p "$RAMDISK_FS"
-		mount -t tmpfs -o size=${MEMSIZE_MB}M tmpfs ${RAMDISK_FS}
-		RAMDISK_SIZE_MB=$((MEMSIZE_MB-200))
-		dd if=/dev/zero of=${RAMDISK} bs=1M count=$RAMDISK_SIZE_MB  >/dev/null 2>&1
-		echo ",,b" | sfdisk ${RAMDISK}
-		losetup -o 1048576 /dev/loop0 ${RAMDISK}
-		mkfs.vfat /dev/loop0 -n "WB UPDATE"
-		mkdir -p "$USBDIR"
-		mount -t vfat /dev/loop0 "$USBDIR"
-		cp /usr/share/README.ramdisk.txt "${USBDIR}/README.txt"
-		umount "$USBDIR"
+	# create usb_mass_storage first
+	MEMSIZE_KB=`cat /proc/meminfo | grep MemTotal | awk '{print $2}'`
+	MEMSIZE_MB=$((MEMSIZE_KB / 1024))
+	mkdir -p "$RAMDISK_FS"
+	mount -t tmpfs -o size=${MEMSIZE_MB}M tmpfs ${RAMDISK_FS}
+	RAMDISK_SIZE_MB=$((MEMSIZE_MB-200))
+	dd if=/dev/zero of=${RAMDISK} bs=1M count=$RAMDISK_SIZE_MB  >/dev/null 2>&1
+	echo ",,b" | sfdisk ${RAMDISK}
+	losetup -o 1048576 /dev/loop0 ${RAMDISK}
+	mkfs.vfat /dev/loop0 -n "WB UPDATE"
+	mkdir -p "$USBDIR"
+	mount -t vfat /dev/loop0 "$USBDIR"
+	cp /usr/share/README.ramdisk.txt "${USBDIR}/README.txt"
+	umount "$USBDIR"
 
-		echo "Activate Mass Storage device"
-		modprobe g_mass_storage file=${RAMDISK} iManufacturer="Wiren Board" iProduct="Wiren Board Update" iSerialNumber="$(cat /proc/device-tree/serial-number)"
+	echo "Activate Mass Storage device"
+	modprobe g_mass_storage file=${RAMDISK} iManufacturer="Wiren Board" iProduct="Wiren Board Update" iSerialNumber="$(cat /proc/device-tree/serial-number)"
 }
 
 setup_usb_ssh() {
@@ -477,31 +496,83 @@ setup_usb_ssh() {
 	dropbear -F -E
 }
 
-case "$BOOTMODE" in
-	update_auto)
-		enable_emmc_update="y"
+update_auto_routine_not_combined_debug_usb() {
+	# before WB8.5; update order: debug network -> usb a -> microsd -> factory fit
+	enable_emmc_update="y"
 
+	if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if force_enable_usb_host && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		local fit_name=".wb-restore/factoryreset.fit"
+		if [[ ! -b "$DATA_PART" ]]; then
+			fit_name="mnt/data/$fit_name"
+		fi
+		update_from_emmc "$fit_name" --no-remove --from-emmc-factoryreset
+	fi
+}
+
+update_auto_routine_combined_debug_usb() {
+	# since WB8.5; update order: usb a (faster search) -> microsd -> debug network (w pressed fw button) -> factory fit
+	button_init
+	enable_emmc_update="y"
+
+	echo "Hold FW button to enable flashing via Debug USB"
+
+	if is_any_usb_a_inserted && search_for_usb_drive; then
+		enable_emmc_update="n"
+		update_from_block_device "/dev/sd*" "" "USB Flash Drive"
+	fi
+
+	if search_for_sd; then
+		enable_emmc_update="n"
+		update_from_block_device "${MICROSD}p*" "" "microSD card"
+	fi
+
+	if button_down && is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
+		enable_emmc_update="n"
+		wait_for_update_from_gadget
+	fi
+
+	if [[ "x${enable_emmc_update}" == "xy" ]]; then
+		local fit_name=".wb-restore/factoryreset.fit"
+		if [[ ! -b "$DATA_PART" ]]; then
+			fit_name="mnt/data/$fit_name"
+		fi
+		update_from_emmc "$fit_name" --no-remove --from-emmc-factoryreset
+	fi
+}
+
+is_board_wb85() {
+	# because of both 8x-85-compatible bootlet dts, we cannot guess board type via of_node/compatible way
+	# getting board type by wbec firmware's internal guess
+	local board_rev_by_wbec=`cat /sys/bus/spi/drivers/wbec/spi0.0/hwrev 2>/dev/null || true`
+	[[ "$board_rev_by_wbec" == "85" ]]
+}
+
+case "$BOOTMODE" in
+	debug_console)
+		;;
+	update_auto)
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
 
-		if is_usb_gadget_supported && check_usb_gadget_cable_present && wait_usb_gadget_connected; then
-			enable_emmc_update="n"
-			wait_for_update_from_gadget
+		if [ "$BOARD_FAMILY" == "wb8" ] && is_board_wb85; then
+			update_auto_routine_combined_debug_usb
+		else
+			update_auto_routine_not_combined_debug_usb
 		fi
-
-		if force_enable_usb_host && search_for_usb_drive; then
-			enable_emmc_update="n"
-			update_from_block_device "/dev/sd*" "" "USB Flash Drive"
-		fi
-
-		if search_for_sd; then
-			enable_emmc_update="n"
-			update_from_block_device "${MICROSD}p*" "" "microSD card"
-		fi
-
-		if [[ "x${enable_emmc_update}" == "xy" ]]; then
-			update_from_emmc ".wb-restore/factoryreset.fit" --no-remove --from-emmc-factoryreset
-		fi
-
 		;;
 	usbupdate*)
 		FIT_NAME="${BOOTMODE#*,}"
@@ -530,6 +601,12 @@ case "$BOOTMODE" in
 		FLAG=/flag
 
 		wait_for_emmc
+		# create usb_mass_storage first
+		dd if=/dev/zero of=$FLAG bs=1K count=1
+		echo "Activate Mass Storage device"
+		led red trigger mmc0
+		modprobe g_mass_storage file=$EMMC,$FLAG iManufacturer="Wiren Board" iProduct="Wiren Board"
+		while [ "x" == "x$_FLAG" ]; do sleep 2; _FLAG=`cat $FLAG`; done
 
 		# # Wiren Board 8 does not support USB gadget yet
 		# if [ "$BOARD_FAMILY" == "wb8" ]; then
@@ -558,7 +635,6 @@ case "$BOOTMODE" in
 		# fi
 		;;
 esac
-
 
 sleep 1
 buzzer_init

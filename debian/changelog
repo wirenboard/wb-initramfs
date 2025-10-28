@@ -1,54 +1,144 @@
-wb-initenv (1.3.2) stable; urgency=medium
+wb-initenv (1.5.5) stable; urgency=medium
 
   * introduce recovery-initram
 
  -- Vladimir Romanov <v.romanov@wirenboard.com>  Wed, 26 Jun 2024 10:15:45 +0300
 
-wb-initenv (1.3.1) stable; urgency=medium
+wb-initramfs (1.5.4) stable; urgency=medium
+
+  * Add bootmode=debug_console support
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Thu, 28 Aug 2025 18:00:00 +0400
+
+wb-initramfs (1.5.3) stable; urgency=medium
+
+  * libupdate.sh: fix platform detection
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Wed, 27 Aug 2025 18:00:00 +0400
+
+wb-initramfs (1.5.2) stable; urgency=medium
+
+  * Fix factoryreset.fit path on extended rootfs
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 22 Aug 2025 18:00:00 +0400
+
+wb-initramfs (1.5.1) stable; urgency=medium
+
+  * Fix factoryreset.fit path on extended rootfs
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 25 Jul 2025 15:00:00 +0400
+
+wb-initramfs (1.5.0) stable; urgency=medium
+
+  * add extended rootfs support
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Mon, 21 Jul 2025 15:00:00 +0400
+
+wb-initramfs (1.4.1) stable; urgency=medium
+
+  * Fix libupdate.sh
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 18 Jul 2025 17:10:00 +0400
+
+wb-initramfs (1.4.0) stable; urgency=medium
+
+  * Remove wb-utils/prepare from rootfs
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 18 Jul 2025 11:10:00 +0400
+
+wb-initramfs (1.3.9) stable; urgency=medium
+
+  * Rename debug-network to Debug USB
+
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Tue, 08 Apr 2025 16:30:44 +0300
+
+wb-initramfs (1.3.8) stable; urgency=medium
+
+  * add e2fsck & fdisk tools
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Tue, 04 Feb 2025 21:13:29 +0300
+
+wb-initramfs (1.3.7) stable; urgency=medium
+
+  * wb8: change update-order (usb -> debug_network); speedup usb detection
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Thu, 28 Nov 2024 21:10:11 +0300
+
+wb-initramfs (1.3.6) stable; urgency=medium
+
+  * wb8.5x: fix buzzer to be compatible with posix sh
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Tue, 12 Nov 2024 23:01:22 +0300
+
+wb-initramfs (1.3.5) stable; urgency=medium
+
+  * wb8.5x: enable buzzer in initramfs (wb8.4x compatible too)
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Fri, 08 Nov 2024 17:38:21 +0300
+
+wb-initramfs (1.3.4) stable; urgency=medium
+
+  * wb8: enable usbgadget
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Fri, 18 Oct 2024 12:27:38 +0300
+
+wb-initramfs (1.3.3) stable; urgency=medium
+
+  * add chattr & lsattr tools
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Mon, 23 Sep 2024 14:36:29 +0300
+
+wb-initramfs (1.3.2) stable; urgency=medium
+
+  * mount debugfs
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Mon, 05 Aug 2024 13:02:39 +0300
+
+wb-initramfs (1.3.1) stable; urgency=medium
 
   * build wb8 initramfs from stable fit
   * init: reduce all watchdogs timeouts to 500ms
 
  -- Vladimir Romanov <v.romanov@wirenboard.com>  Wed, 15 May 2024 13:15:45 +0300
 
-wb-initenv (1.3.0) stable; urgency=medium
+wb-initramfs (1.3.0) stable; urgency=medium
 
   * add Wiren Board 8 support
 
  -- Nikita Maslov <nikita.maslov@wirenboard.com>  Fri, 26 Apr 2024 13:46:31 +0500
 
-wb-initenv (1.2.3) stable; urgency=medium
+wb-initramfs (1.2.3) stable; urgency=medium
 
   * add WBEC flashing requirements
 
  -- Vladimir Romanov <v.romanov@wirenboard.com>  Thu, 28 Mar 2024 19:31:29 +0300
 
-wb-initenv (1.2.2) stable; urgency=medium
+wb-initramfs (1.2.2) stable; urgency=medium
 
   * update README in ramdisk, no functional changes
     Co-authored-by: Alexander Degtyarev
 
  -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Tue, 28 Nov 2023 15:45:56 +0600
 
-wb-initenv (1.2.1) stable; urgency=medium
+wb-initramfs (1.2.1) stable; urgency=medium
 
   * add utils for FIT compatibility check via factory FDT
 
  -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Mon, 21 Aug 2023 15:00:28 +0600
 
-wb-initenv (1.2.0) stable; urgency=medium
+wb-initramfs (1.2.0) stable; urgency=medium
 
   * switch to Debian bullseye
 
  -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Fri, 18 Aug 2023 18:12:39 +0600
 
-wb-initenv (1.1.0) stable; urgency=medium
+wb-initramfs (1.1.0) stable; urgency=medium
 
   * make USB debug network update work without USB disconnection
 
  -- Nikita Maslov <nikita.maslov@wirenboard.ru>  Fri, 18 Aug 2023 17:56:55 +0600
 
-wb-initenv (1.0.0) stable; urgency=medium
+wb-initramfs (1.0.0) stable; urgency=medium
 
   * Initial release, stretch
 

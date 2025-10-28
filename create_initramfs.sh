@@ -75,6 +75,8 @@ install_from_rootfs() {
 	install_file "$ROOTFS/$src" "$dst"
 
 	# If file is executable, need to get its shared lib dependencies too
+	# TODO: lddtree (from pax-utils) in deb11 doesn't support --copy-to-tree, use after switch to deb13
+	# lddtree --skip-non-elfs -R "$ROOTFS" --copy-to-tree "$INITRAMFS" "$src"
 	if [[ -x "$ROOTFS/$src" ]]; then
 		chroot "$ROOTFS" ldd "$src" |
 		sed -rn 's#[^/]*(/[^ ]*).*#\1#p' |
@@ -162,6 +164,8 @@ FROM_ROOTFS=(
 	/usr/bin/fw_setenv
     /etc/profile
 	/usr/bin/fit_info
+    /usr/bin/chattr
+    /usr/bin/lsattr
 	/usr/bin/pv
     /sbin/mkfs.ext4
     /sbin/mkfs.vfat
@@ -191,8 +195,6 @@ FROM_ROOTFS=(
 
     /usr/bin/pigz
     /sbin/sfdisk
-    /usr/lib/wb-utils/prepare/vars.sh
-    /usr/lib/wb-utils/prepare/partitions.sh
     /usr/lib/wb-utils/device-factory-fdt.sh
     /usr/bin/dtc
     /usr/bin/fdtoverlay
@@ -202,6 +204,8 @@ FROM_ROOTFS=(
     /bin/dd
     /sbin/dumpe2fs
     /sbin/resize2fs
+    /sbin/e2fsck
+    /sbin/fdisk
 )
 
 for f in "${FROM_ROOTFS[@]}"; do

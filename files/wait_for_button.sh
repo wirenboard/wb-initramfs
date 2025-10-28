@@ -33,7 +33,7 @@ if [ "x${USE_ECHO}" == "xy" ]; then
             _ECHO_COUNTER=0
         fi
     }
-    
+
     echo_reset() {
         echo
     }
@@ -46,7 +46,6 @@ else
         true
     }
 fi
-
 
 if use_buzzer; then
     buzzer_init
@@ -65,7 +64,7 @@ if use_buzzer; then
             buzzer_off
         fi
     }
-else 
+else
     buzzer_wait() {
         true
     }
