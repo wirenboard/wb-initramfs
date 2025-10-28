@@ -639,7 +639,7 @@ esac
 sleep 1
 buzzer_init
 
-echo -e "\n\n\n\n\n\n\n\n\n------------Hello from WirenBoard recovery dumper!---------------\n" >> /dev/ttyS0
+echo -e "\n\n\n\n\n\n\n\n\n------------Hello from MicroSD recovery dumper!---------------\n" >> /dev/ttyS0
 
 mkdir -p /mnt/backup
 mkdir -p /mnt/oldroot
