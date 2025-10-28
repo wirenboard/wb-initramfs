@@ -643,7 +643,10 @@ if USE_BUZZER=y USE_ECHO=y WAIT_TIME=3 HOLD_TIME=5 wait_for_button; then
 			echo -e "\n---- Factory FIT was untouched" | tee -a $logfile >> /dev/ttyS0
 		else
 		 	echo -e "\n---- !!!! Factory FIT not found in released! Replacing with safe bundled one" | tee -a $logfile >> /dev/ttyS0
+			was_immutable=$(lsattr -l /mnt/olddata/.wb-restore/factoryreset.fit | grep "Immutable" || true)
+			chattr -i /mnt/olddata/.wb-restore/factoryreset.fit
 			cp /mnt/factoryreset/wb_update_FACTORYRESET.fit /mnt/olddata/.wb-restore/factoryreset.fit || return 1
+			[[ -n "$was_immutable" ]] && chattr +i /mnt/olddata/.wb-restore/factoryreset.fit
 			sync
 			echo -e "\n---- Done" | tee -a $logfile >> /dev/ttyS0
 		fi
