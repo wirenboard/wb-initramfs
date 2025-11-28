@@ -7,7 +7,7 @@ PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
 WB_RELEASE=${WB_RELEASE:-stable}
 
 if [ -z "$PLATFORM" ]; then
-    echo "Usage: $0 6x/7x/8x"
+    echo "Usage: $0 6x/7x/8x [fit url]"
     exit 1
 fi
 
@@ -42,6 +42,10 @@ tar -xf "$ROOTFS_FILE" -C "$ROOTFS_DIR"
 
 echo "Add /etc/resolv.conf from host to rootfs..."
 cp /etc/resolv.conf "$ROOTFS_DIR"/etc/resolv.conf
+
+if [[ -n "$TESTING_SET" ]]; then
+    echo "deb http://deb.wirenboard.com/all experimental.${TESTING_SET} main" > "$ROOTFS_DIR"/etc/apt/sources.list.d/${TESTING_SET}.list
+fi
 
 echo "Chrooting into rootfs in order to install more packages..."
 "$ROOTFS_DIR"/chroot_this.sh sh -c " \
