@@ -7,11 +7,11 @@ PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
 WB_RELEASE=${WB_RELEASE:-stable}
 
 if [ -z "$PLATFORM" ]; then
-    echo "Usage: $0 6x/7x/8x [fit url]"
+    echo "Usage: $0 6x/7x/8x [fit url or local path]"
     exit 1
 fi
 
-IMAGE_URL=${2:-"http://fw-releases.wirenboard.com/fit_image/${WB_RELEASE}/${PLATFORM}/latest.fit"}
+IMAGE_SOURCE=${2:-"http://fw-releases.wirenboard.com/fit_image/${WB_RELEASE}/${PLATFORM}/latest.fit"}
 
 if ! which fpm || ! which dumpimage || ! which cpio; then
     # won't be used on CI after https://github.com/wirenboard/wirenboard/pull/163 is merged
@@ -27,9 +27,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Downloading FIT for platform wb$PLATFORM..."
 FIT_FILE="$TMP_DIR/latest.fit"
-wget -O "$FIT_FILE" "$IMAGE_URL"
+if [ -f "$IMAGE_SOURCE" ]; then
+    echo "Using local FIT for platform wb$PLATFORM: $IMAGE_SOURCE"
+    cp "$IMAGE_SOURCE" "$FIT_FILE"
+else
+    echo "Downloading FIT for platform wb$PLATFORM..."
+    wget -O "$FIT_FILE" "$IMAGE_SOURCE"
+fi
 
 echo "Gathering rootfs from FIT..."
 ROOTFS_FILE="$TMP_DIR/rootfs.tar.gz"
