@@ -1,3 +1,9 @@
+wb-initramfs (1.5.5) stable; urgency=medium
+
+  * Fix buzzer_init on wb8
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 10 Apr 2026 17:00:00 +0400
+
 wb-initramfs (1.5.4) stable; urgency=medium
 
   * Add bootmode=debug_console support

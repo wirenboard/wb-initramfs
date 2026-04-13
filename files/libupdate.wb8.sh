@@ -27,7 +27,7 @@ get_pwmchip_pwmbuzzer() {
             ;;
     esac
 
-    pwm_chip=$(grep -H $compatible /sys/class/pwm/pwmchip*/device/of_node/compatible | grep -Eo "pwmchip[[:digit:]]+")
+    pwm_chip=$(grep -aH -- "$compatible" /sys/class/pwm/pwmchip*/device/of_node/compatible | grep -aEo "pwmchip[[:digit:]]+")
     echo "$pwm_chip $pwm_buzzer"
 }
 
