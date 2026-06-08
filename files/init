@@ -506,7 +506,7 @@ case "$BOOTMODE" in
 		# blockdev --rereadpt $EMMC
 		# sleep 1
 
-		setup_usb_ssh &
+		# setup_usb_ssh &
 		;;
 esac
 
