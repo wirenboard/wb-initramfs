@@ -493,6 +493,15 @@ case "$BOOTMODE" in
 		FLAG=/flag
 
 		wait_for_emmc
+
+		ram_mib=$(awk '/System RAM/{split($1,a,"-"); printf "%d",(("0x"a[2])-("0x"a[1])+1)/1024/1024}' /proc/iomem)
+		if [ "$ram_mib" = "255" ]; then
+			buzzer_init
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
+		fi
+
 		# create usb_mass_storage first
 		dd if=/dev/zero of=$FLAG bs=1K count=1
 		echo "Activate Mass Storage device"
@@ -505,14 +514,6 @@ case "$BOOTMODE" in
 		sleep 1
 		blockdev --rereadpt $EMMC
 		sleep 1
-
-		ram_mib=$(awk '/System RAM/{split($1,a,"-"); printf "%d",(("0x"a[2])-("0x"a[1])+1)/1024/1024}' /proc/iomem)
-		if [ "$ram_mib" = "255" ]; then
-			buzzer_init
-			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
-			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
-			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
-		fi
 
 		setup_usb_ssh &
 		;;
