@@ -506,15 +506,15 @@ case "$BOOTMODE" in
 		blockdev --rereadpt $EMMC
 		sleep 1
 
-		setup_usb_ssh &
-
 		ram_mib=$(awk '/System RAM/{split($1,a,"-"); printf "%d",(("0x"a[2])-("0x"a[1])+1)/1024/1024}' /proc/iomem)
 		if [ "$ram_mib" = "255" ]; then
 			buzzer_init
-			buzzer_on; sleep 0.5; buzzer_off
-			buzzer_on; sleep 0.5; buzzer_off
-			buzzer_on; sleep 0.5; buzzer_off
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
+			buzzer_on; sleep 0.5; buzzer_off; sleep 0.5
 		fi
+
+		setup_usb_ssh &
 		;;
 esac
 
