@@ -1,3 +1,9 @@
+wb-initramfs (1.5.6) stable; urgency=medium
+
+  * Checking dram == 255 MiB
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Mon, 22 Jun 2026 21:13:29 +0300
+
 wb-initramfs (1.5.5) stable; urgency=medium
 
   * Fix buzzer_init on wb8
