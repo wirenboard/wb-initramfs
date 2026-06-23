@@ -454,8 +454,29 @@ is_board_wb85() {
 	[[ "$board_rev_by_wbec" == "85" ]]
 }
 
+run_memtester() {
+	local ram_mib
+	ram_mib=$(awk '/System RAM/{split($1,a,"-"); printf "%d",(("0x"a[2])-("0x"a[1])+1)/1024/1024}' /proc/iomem)
+	echo "Detected RAM: ${ram_mib} MiB"
+
+	local free_kb
+	free_kb=$(awk '/MemAvailable:/{print $2}' /proc/meminfo)
+	[ -z "$free_kb" ] && free_kb=$(awk '/MemFree:/{print $2}' /proc/meminfo)
+	local test_mib=$((free_kb / 1024 - 32))
+	if [ "$test_mib" -le 0 ]; then
+		echo "Not enough free memory for memtester"
+		return 1
+	fi
+
+	echo "Running memtester on ${test_mib} MiB (1 loop)..."
+	memtester "${test_mib}M" 1
+}
+
 case "$BOOTMODE" in
 	debug_console)
+		;;
+	memtest)
+		run_memtester
 		;;
 	update_auto)
 		is_usb_gadget_supported && setup_usb_ram_mass_storage
