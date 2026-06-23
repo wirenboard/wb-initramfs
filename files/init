@@ -472,6 +472,9 @@ run_memtester() {
 	memtester "${test_mib}M" 1
 }
 
+# DEBUG: always run memtester on initramfs entry, regardless of bootmode
+run_memtester || true
+
 case "$BOOTMODE" in
 	debug_console)
 		;;
