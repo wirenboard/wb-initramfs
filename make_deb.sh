@@ -3,7 +3,7 @@
 set -e
 
 PLATFORM=$1
-PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd"
+PACKAGES="dropbear mmc-utils rsync dosfstools fdisk kbd memtester"
 WB_RELEASE=${WB_RELEASE:-stable}
 
 if [ -z "$PLATFORM" ]; then

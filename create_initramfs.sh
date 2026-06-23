@@ -202,6 +202,7 @@ FROM_ROOTFS=(
     /sbin/resize2fs
     /sbin/e2fsck
     /sbin/fdisk
+    /usr/sbin/memtester
 )
 
 for f in "${FROM_ROOTFS[@]}"; do
