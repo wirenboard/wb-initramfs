@@ -205,8 +205,6 @@ FROM_ROOTFS=(
     /usr/bin/xxd
 
     "$LIBDIR/libnss_files.so.2"
-    "$LIBDIR/libnss_files-2.31.so"
-    "$LIBDIR/ld-2.31.so"
 
     /etc/shadow
     /etc/group
@@ -234,5 +232,11 @@ FROM_ROOTFS=(
 for f in "${FROM_ROOTFS[@]}"; do
 	install_from_rootfs "$f"
 done
+
+# bullseye (glibc 2.31): libnss_files.so.2 and ld-linux are symlinks to these
+# versioned files. trixie (glibc 2.41): libnss_files is built into libc and the
+# loader is a regular file, so there is nothing to copy.
+install_from_rootfs_optional "$LIBDIR/libnss_files-2.31.so"
+install_from_rootfs_optional "$LIBDIR/ld-2.31.so"
 
 echo 'root:x:0:0:root:/:/bin/sh' > "$INITRAMFS/etc/passwd"
