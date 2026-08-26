@@ -64,6 +64,33 @@ install_recursive() {
     cp -r "$src" "$INITRAMFS/$dst"
 }
 
+# Same as install_from_rootfs, but the source is a glob relative to the rootfs
+# (e.g. OpenSSL engines live in engines-1.1/ on bullseye and engines-3/ on trixie).
+# Exactly one match is required.
+install_from_rootfs_glob() {
+	local pattern="$1"
+	local matches=()
+	local f
+	for f in $ROOTFS$pattern; do
+		[[ -e "$f" ]] && matches+=("${f#$ROOTFS}")
+	done
+	[[ ${#matches[@]} == 1 ]] || {
+		echo "install_from_rootfs_glob: expected exactly one match for $pattern, got ${#matches[@]}" >&2
+		exit 1
+	}
+	install_from_rootfs "${matches[0]}"
+}
+
+# Same as install_from_rootfs, but silently skip files absent in this rootfs
+# (e.g. gpiofind exists only with libgpiod 1.x, i.e. bullseye).
+install_from_rootfs_optional() {
+	if [[ -e "$ROOTFS/$1" ]]; then
+		install_from_rootfs "$@"
+	else
+		echo "skip $1 (not in rootfs)"
+	fi
+}
+
 install_from_rootfs() {
 	local src="$1"
 	local dst="$2"
@@ -132,10 +159,10 @@ wb7*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/arm-linux-gnueabihf/engines-1.1/ateccx08.so
+    install_from_rootfs_glob "/usr/lib/arm-linux-gnueabihf/engines-*/ateccx08.so"
     install_from_rootfs "$LIBDIR/ld-linux.so.3"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
+    install_from_rootfs_optional /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash
@@ -147,10 +174,10 @@ wb8*)
     install_recursive /usr/lib/ssl /usr/lib/ssl
     install_from_rootfs /usr/bin/c_rehash
     install_from_rootfs /usr/bin/openssl
-    install_from_rootfs /usr/lib/aarch64-linux-gnu/engines-1.1/ateccx08.so
+    install_from_rootfs_glob "/usr/lib/aarch64-linux-gnu/engines-*/ateccx08.so"
     install_from_rootfs "$LIBDIR/ld-linux-aarch64.so.1"
     # WBEC flashing requirements:
-    install_from_rootfs /usr/bin/gpiofind
+    install_from_rootfs_optional /usr/bin/gpiofind
     install_from_rootfs /usr/bin/gpioset
     install_from_rootfs /usr/sbin/i2cdetect
     install_from_rootfs /usr/bin/stm32flash

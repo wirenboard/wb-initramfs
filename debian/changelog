@@ -1,3 +1,11 @@
+wb-initramfs (1.5.6) stable; urgency=medium
+
+  * Support trixie rootfs: take the ateccx08 OpenSSL engine from engines-*/
+    (engines-1.1 on bullseye, engines-3 on trixie), make gpiofind optional
+    (gone with libgpiod 2)
+
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Wed, 26 Aug 2026 22:13:44 +0000
+
 wb-initramfs (1.5.5) stable; urgency=medium
 
   * Fix buzzer_init on wb8
