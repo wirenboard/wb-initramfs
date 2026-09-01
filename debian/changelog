@@ -1,3 +1,10 @@
+wb-initramfs (1.6.0) stable; urgency=medium
+
+  * Build with trixie rootfs
+  * Drop wb5 support
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Tue, 01 Sep 2026 15:00:00 +0400
+
 wb-initramfs (1.5.5) stable; urgency=medium
 
   * Fix buzzer_init on wb8
