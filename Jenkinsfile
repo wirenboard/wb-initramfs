@@ -1,8 +1,8 @@
 Map config = [
     defaultTargets: '6x 7x 8x',
-    wbReleases: ['wb-2609', 'testing'],
+    wbReleases: ['stable', 'testing'],
     defaultImageUrls: "",
-    defaultFitBuildIds: "16750 16752 16753",
+    defaultFitBuildIds: "",
     defaultWbdevImage: '',
     defaultEnableTelegramAlert: false,
     customReleaseBranchPattern: '^\b$'  // never-matching pattern
