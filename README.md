@@ -40,7 +40,7 @@ wb7:
 ```sh
 => setenv bootargs console=${console} bootmode=debug_console
 => load mmc 1:2 0x42000000 /var/lib/wb-image-update/zImage
-=> load mmc 1:2 0x43000000 /boot/dtbs/sun8i-wirenboard720.dtb
+=> load mmc 1:2 0x43000000 /boot/dtbs/sun8i-r40-wirenboard720.dtb
 => bootz 0x42000000 - 0x43000000
 ```
 

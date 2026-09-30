@@ -13,7 +13,7 @@ fi
 
 IMAGE_SOURCE=${2:-"http://fw-releases.wirenboard.com/fit_image/${WB_RELEASE}/${PLATFORM}/latest.fit"}
 
-if ! which fpm || ! which dumpimage || ! which cpio || ! lddtree; then
+if ! which fpm || ! which dumpimage || ! which cpio || ! which lddtree; then
     # won't be used on CI after https://github.com/wirenboard/wirenboard/pull/163 is merged
     echo "Installing build deps"
 
