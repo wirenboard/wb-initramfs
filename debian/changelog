@@ -1,3 +1,11 @@
+wb-initramfs (1.6.3) stable; urgency=medium
+
+  * Add LICENSE (MIT-WB): Wiren Board as the copyright holder, 2017 as the first
+    publication year, use restricted to Wiren Board equipment
+  * Fill debian/copyright in the DEP-5 format
+
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Mon, 23 Nov 2026 13:55:37 +0000
+
 wb-initramfs (1.6.2) stable; urgency=medium
 
   * Use lddtree from pax-utils
