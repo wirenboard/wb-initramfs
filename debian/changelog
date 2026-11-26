@@ -1,3 +1,11 @@
+wb-initramfs (1.6.3) stable; urgency=medium
+
+  * Create the Debug USB RAM disk as a sparse file: it no longer takes
+    all RAM but 200 MB from the start, which made flashing on WB8 with
+    4 GB RAM thrash for minutes to hours before installing u-boot
+
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Thu, 26 Nov 2026 19:50:00 +0300
+
 wb-initramfs (1.6.2) stable; urgency=medium
 
   * Use lddtree from pax-utils
