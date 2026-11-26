@@ -368,7 +368,8 @@ setup_usb_ram_mass_storage() {
 	mkdir -p "$RAMDISK_FS"
 	mount -t tmpfs -o size=${MEMSIZE_MB}M tmpfs ${RAMDISK_FS}
 	RAMDISK_SIZE_MB=$((MEMSIZE_MB-200))
-	dd if=/dev/zero of=${RAMDISK} bs=1M count=$RAMDISK_SIZE_MB  >/dev/null 2>&1
+	# sparse file: tmpfs takes RAM only for what is written, not for the whole disk
+	dd if=/dev/zero of=${RAMDISK} bs=1M count=0 seek=$RAMDISK_SIZE_MB  >/dev/null 2>&1
 	echo ",,b" | sfdisk ${RAMDISK}
 	losetup -o 1048576 /dev/loop0 ${RAMDISK}
 	mkfs.vfat /dev/loop0 -n "WB UPDATE"
